@@ -47,6 +47,19 @@ const ProfilePage = () => {
                     ))}
                 </div>
             </div>
+            {/* <div className="likedblogs">
+                <h1>Liked Blogs</h1>
+                {blogs.filter(blog => user.likedBlogs.includes(blog._id)).map(likedBlog => (
+                    <div key={likedBlog._id} className="border p-4 m-4 flex items-center">
+                        <img className="w-80" src={`http://localhost:3000${likedBlog.imageUrl}`} alt="" />
+                        <div className=' flex flex-col'>
+                            <h1 className='text-center font-bold'>{likedBlog.title}</h1>
+                            <p className='text-center'>{likedBlog.content.substr(0, 10)}</p>
+                            <Link className="bg-blue-500 text-white px-4 py-2 rounded ml-2 mx-2 w-full hover:cursor-pointer hover:bg-blue-800 transition" to={`/blog/${likedBlog._id}`}>Read More</Link>
+                        </div>
+                    </div>
+                ))}
+            </div> */}
         </>
     )
 }

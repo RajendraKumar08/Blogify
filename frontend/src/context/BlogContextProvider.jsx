@@ -127,8 +127,34 @@ const BlogContextProvider = ({ children }) => {
     }
   }
 
+  const likeBlog = async (blogId) => {
+    try {
+      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/like`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!result.ok) {
+        const text = await result.text();
+        throw new Error(`Like request failed (${result.status}): ${text}`);
+      }
+
+      const data = await result.json();
+      console.log("Like response", data);
+
+      if (data.success && data.blog) {
+        setBlog(data.blog);
+        setBlogs((prev) => prev.map((b) => (b._id === data.blog._id ? data.blog : b)));
+      }
+    } catch (error) {
+      console.error("Error liking blog", error);
+      alert("Unable to like blog. Please try again.");
+    }
+  };
+
+
     return (
-    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs}}>
+    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs, likeBlog}}>
       {children}
     </BlogContext.Provider>
   );

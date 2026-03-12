@@ -78,5 +78,30 @@ router.get("/api/me", (req, res) => {
     return res.status(401).json({ success: false, error: "Invalid token" });
   }
 });
+router.post("/api/managelike", async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    const blogId = req.body.blogId;
 
+
+
+    if (!token) {
+      return res.status(401).json({ success: false, error: "Not logged in" });
+    }
+
+    const user = validateToken(token);
+
+    if(user.likedBlogs.includes(blogId)){
+      user.likedBlogs = user.likedBlogs.filter(id => id.toString() !== blogId);
+    } else {
+      user.likedBlogs.push(blogId);
+    }
+
+    await user.save();
+    
+    return res.json({ success: true, user });
+  } catch (err) {
+    return res.status(401).json({ success: false, error: "Invalid token" });
+  }
+});
 module.exports = router

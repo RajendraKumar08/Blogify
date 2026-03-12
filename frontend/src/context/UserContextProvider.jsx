@@ -100,10 +100,31 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
+  const managelike = async () => {
+    try{
+      const result = await fetch("/user/api/managelike", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({blogId : blog._id}),
+      });
+      if(!result.ok){
+        const text = await result.text();
+        throw new Error(`Manage like request failed (${result.status}): ${text}`);
+      }
+      const data = await result.json();
+      console.log("Manage like response", data);
+
+    }
+    catch(error){
+      console.log("Mange like err" , error)
+    }
+  }
+
  
 
   return (
-    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser }}>
+    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike }}>
       {children}
     </UserContext.Provider>
   );

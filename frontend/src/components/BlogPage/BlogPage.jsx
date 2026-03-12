@@ -2,13 +2,19 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import BlogContext from "../../context/BlogContext";
+import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
 import ChatBot from "../ChatBot/ChatBot";
 
 const BlogPage = () => {
 
   const { id } = useParams();
-  const { fetch_blog, blog, create_comment, fetch_comments, comments } = useContext(BlogContext);
+  const { fetch_blog, blog, create_comment, fetch_comments, comments, likeBlog } = useContext(BlogContext);
+  const { user, managelike, fetchUser } = useContext(userContext);
+
+  const isBlogLikedByUser = Boolean(
+    blog && user && blog.likes && blog.likes.some((id) => id.toString() === user._id.toString())
+  );
 
   const {
     register,
@@ -35,6 +41,19 @@ const BlogPage = () => {
     await create_comment(data);
     reset();
   }
+  
+
+  const handlelike = () => {
+    if(!user){
+      alert("Please login to like the blog");
+      return;
+    }
+    else{
+      likeBlog(blog._id);
+      managelike();
+    }
+    fetch_blog(id);
+  }
 
   return (
     <>
@@ -44,6 +63,9 @@ const BlogPage = () => {
             {blog.imageUrl && <img className="border mt-3.5" width={623} src={`http://localhost:3000${blog.imageUrl}`} alt={blog.title} />}
             <h1 className="font-bold text-2xl text-center">{blog.title}</h1>
             <p className="w-1/2 text-center mt-1.5">{blog.content}</p>
+            <button onClick={handlelike} className="border px-3 hover:cursor-pointer hover:bg-blue-400 transition-all hover:text-white">
+              {blog.likes.length} {isBlogLikedByUser ? "Liked" : "Like"}
+            </button>
             <div>
               <p>Created By : {blog.createdBy.name}</p>
             </div>

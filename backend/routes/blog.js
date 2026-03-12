@@ -102,6 +102,35 @@ router.get('/api/:id', async (req, res) => {
   }
 });
 
+router.post('/api/:id/like', async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user._id;
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    // Check if the user has already liked the blog
+    const isLiked = blog.likes.includes(userId);
+
+    if (isLiked) {
+      // Unlike the blog
+      blog.likes = blog.likes.filter((id) => id.toString() !== userId.toString());
+    } else {
+      // Like the blog
+      blog.likes.push(userId);
+    }
+
+    await blog.save();
+    return res.json({ success: true, blog });
+  } catch (error) {
+    console.log("Error liking blog", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
 
 

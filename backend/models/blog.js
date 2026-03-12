@@ -21,6 +21,10 @@ const BlogSchema = new Schema({
     ref: 'User',
     required: true
   },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
 }, { timestamps: true });
 
 module.exports = model('Blog', BlogSchema);
