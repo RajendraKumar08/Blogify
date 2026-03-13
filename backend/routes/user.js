@@ -6,6 +6,7 @@ const {validateToken} = require("../service/auth");
 const user = require('../models/user');
 const multer = require("multer");
 const path = require("path");
+const { ObjectId } = require('mongoose').Types;
 
 const router = Router()
 
@@ -26,7 +27,7 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
   try {
     const { name, email, password } = req.body;
     // const salt = randomBytes(16).toString("hex");
-    console.log("File received:", req.file);
+    // console.log("File received:", req.file);
     let imageUrl = '';
     if(req.file){
       imageUrl = `/upload/${req.file.filename}`;
@@ -35,7 +36,7 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
 
     const token = createTokenForUser(user);
 
-    console.log(user)
+    // console.log(user)
 
     return res.cookie("token", token, { httpOnly: true }).json({ success: true, user });
 
@@ -51,7 +52,8 @@ router.post('/api/login', async (req, res) => {
 
     try {
         const token = await User.matchPasswordAndGenerateToken(email, password)
-        const user = validateToken(token);
+        const payload = validateToken(token);
+        const user = await User.findById(payload._id).select('-password -salt');
         // console.log(user)
         return res.cookie("token", token).json({ success: true, user})
     } catch (error) {
@@ -63,7 +65,7 @@ router.post('/api/logout', (req, res) => {
   return res.clearCookie("token").json({ success: true });
 });
 
-router.get("/api/me", (req, res) => {
+router.get("/api/me", async (req, res) => {
   try {
     const token = req.cookies.token;
 
@@ -71,7 +73,8 @@ router.get("/api/me", (req, res) => {
       return res.status(401).json({ success: false, error: "Not logged in" });
     }
 
-    const user = validateToken(token);
+    const payload = validateToken(token);
+    const user = await User.findById(payload._id).select('-password -salt');
 
     return res.json({ success: true, user });
   } catch (err) {
@@ -81,27 +84,40 @@ router.get("/api/me", (req, res) => {
 router.post("/api/managelike", async (req, res) => {
   try {
     const token = req.cookies.token;
-    const blogId = req.body.blogId;
+    const blogId = req.body.blogId;  
 
-
+    console.log("Blog ID received in manage like route:", blogId);
 
     if (!token) {
       return res.status(401).json({ success: false, error: "Not logged in" });
     }
 
-    const user = validateToken(token);
+    if (!blogId || !ObjectId.isValid(blogId)) {
+      return res.status(400).json({ success: false, error: "Invalid blog ID" });
+    }
 
-    if(user.likedBlogs.includes(blogId)){
-      user.likedBlogs = user.likedBlogs.filter(id => id.toString() !== blogId);
+    const payload = validateToken(token);
+    const user = await User.findById(payload._id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const blogObjectId = new ObjectId(blogId);
+
+    if(user.likedBlogs.some(id => id.equals(blogObjectId))){
+      user.likedBlogs = user.likedBlogs.filter(id => !id.equals(blogObjectId));
     } else {
-      user.likedBlogs.push(blogId);
+      user.likedBlogs.push(blogObjectId);
     }
 
     await user.save();
+    user.likedBlogs.map(id => console.log("Liked blog id", id));
     
-    return res.json({ success: true, user });
+    return res.json({ success: true, user }); // Return the updated user document
   } catch (err) {
-    return res.status(401).json({ success: false, error: "Invalid token" });
+    console.log("Error in manage like:", err);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 });
 module.exports = router

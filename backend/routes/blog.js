@@ -30,7 +30,7 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
         model: "openai/gpt-oss-20b",
         input: "Generate A short Discription within 60 character for a blog post with the following content: " + content,
       });
-      console.log("OpenAI Response:", result.output_text);
+      // console.log("OpenAI Response:", result.output_text);
       discription = result.output_text;
     }
     let imageUrl = '';
@@ -127,6 +127,28 @@ router.post('/api/:id/like', async (req, res) => {
     return res.json({ success: true, blog });
   } catch (error) {
     console.log("Error liking blog", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/api/:id/delete', async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user._id;
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    if (blog.createdBy.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized to delete this blog' });
+    }
+
+    await Blog.findByIdAndDelete(blogId);
+    return res.json({ success: true, message: 'Blog deleted successfully' });
+  } catch (error) {
+    console.log("Error deleting blog", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });

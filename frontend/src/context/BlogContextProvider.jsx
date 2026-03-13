@@ -152,9 +152,34 @@ const BlogContextProvider = ({ children }) => {
     }
   };
 
+  const deleteBlog = async (blogId) => {
+    try{
+      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/delete`, {
+        method: "POST", // backend expects POST for delete
+        credentials: "include",
+      });
+      if(!result.ok){
+        const text = await result.text();
+        throw new Error(`Delete request failed (${result.status}): ${text}`);
+      }
+      const data = await result.json();
+      console.log(data);
+
+      if (data.success) {
+        setBlogs((prev) => prev.filter((b) => b._id !== blogId));
+        setBlog((prev) => (prev?._id === blogId ? null : prev));
+      }
+
+      return data;
+    } catch(error){
+      console.log("Error deleting blog", error);
+      throw error;
+    }
+  }
+
 
     return (
-    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs, likeBlog}}>
+    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs, likeBlog, deleteBlog}}>
       {children}
     </BlogContext.Provider>
   );

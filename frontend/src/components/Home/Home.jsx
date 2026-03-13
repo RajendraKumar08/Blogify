@@ -18,11 +18,11 @@ function Home() {
 
   useEffect(() => {
     fetch_blogs();
-    console.log("Blogs fetched", blogs);
+    // console.log("Blogs fetched", blogs);
   }, []);
 
   const onSubmit = async (data) => {
-    console.log("Search data", data);
+    // console.log("Search data", data);
     // Implement search functionality here
     await searchBlogs(data.q);
   }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // axios not used here
 import BlogContext from "../../../src/context/BlogContext";
+import BlogEditor from '../BlogEditor/BlogEditor';
 
 
 
@@ -11,6 +12,7 @@ const CreateBlog = () => {
 
     const navigate = useNavigate();
     const { create_blog } = useContext(BlogContext);
+    const [content, setContent] = useState("");
 
     const {
         register,
@@ -67,6 +69,7 @@ const CreateBlog = () => {
                     />
 
                     {errors.image && <span className='text-red-500 mb-4'>{errors.image.message}</span>}
+                    <BlogEditor setContent={setContent} />
                     <button className='bg-blue-500 text-white p-2 rounded hover:cursor-pointer hover:bg-blue-900 transition-all' type="submit">Create Blog</button>
                 </form>
             </div>

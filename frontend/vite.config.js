@@ -12,7 +12,8 @@ export default defineConfig({
       '/blog/api/search' : 'http://localhost:3000',
       '/chat/api' : 'http://localhost:3000',
       '/blog/api/:id/like' : 'http://localhost:3000',
-      '/user/api/managelike' : 'http://localhost:3000'
+      '/user/api/managelike' : 'http://localhost:3000',
+      '/blog/api/:id/delete' : 'http://localhost:3000'
     }
   },
   plugins: [

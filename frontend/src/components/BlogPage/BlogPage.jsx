@@ -5,16 +5,19 @@ import BlogContext from "../../context/BlogContext";
 import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
 import ChatBot from "../ChatBot/ChatBot";
+import { useNavigate } from "react-router-dom";
 
 const BlogPage = () => {
 
   const { id } = useParams();
-  const { fetch_blog, blog, create_comment, fetch_comments, comments, likeBlog } = useContext(BlogContext);
+  const { fetch_blog, blog, create_comment, fetch_comments, comments, likeBlog, deleteBlog } = useContext(BlogContext);
   const { user, managelike, fetchUser } = useContext(userContext);
 
   const isBlogLikedByUser = Boolean(
     blog && user && blog.likes && blog.likes.some((id) => id.toString() === user._id.toString())
   );
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -50,9 +53,21 @@ const BlogPage = () => {
     }
     else{
       likeBlog(blog._id);
-      managelike();
+      managelike(blog);
     }
     fetch_blog(id);
+    // fetchUser();
+
+  }
+
+  const handleDelete = async () => {
+    try {
+      await deleteBlog(blog._id);
+      navigate('/');
+    } catch (error) {
+      console.error('Delete failed', error);
+      alert('Unable to delete blog. Please try again.');
+    }
   }
 
   return (
@@ -68,6 +83,9 @@ const BlogPage = () => {
             </button>
             <div>
               <p>Created By : {blog.createdBy.name}</p>
+              {blog.createdBy._id === user?._id && <button onClick={handleDelete} className="border px-3 hover:cursor-pointer hover:bg-red-400 transition-all hover:text-white">
+                Delete Blog
+              </button>}
             </div>
           </div>
           <div className="flex flex-col justify-center items-center mt-5">

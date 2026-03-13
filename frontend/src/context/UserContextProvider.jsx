@@ -100,7 +100,8 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
-  const managelike = async () => {
+  const managelike = async (blog) => {
+    console.log("Managing like for blog:", blog);
     try{
       const result = await fetch("/user/api/managelike", {
         method: "POST",
@@ -114,10 +115,12 @@ const UserContextProvider = ({ children }) => {
       }
       const data = await result.json();
       console.log("Manage like response", data);
-
+      if(data.success){
+        setUser(data.user); // Update user in context with new likedBlogs
+      }
     }
     catch(error){
-      console.log("Mange like err" , error)
+      console.log("Manage like err" , error)
     }
   }
 
