@@ -1,7 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import EditorJS from "@editorjs/editorjs";
 import Header from "@editorjs/header";
+import List from "@editorjs/list";
+import Quote from "@editorjs/quote";
+import Code from "@editorjs/code";
+import ImageTool from "@editorjs/image";
 import Paragraph from "@editorjs/paragraph";
+
 
 const BlogEditor = ({ setContent }) => {
 
@@ -13,7 +18,11 @@ const BlogEditor = ({ setContent }) => {
       holder: "editorjs",
       tools: {
         header: Header,
-        paragraph: Paragraph
+        paragraph: Paragraph,
+        list: List,
+        code: Code,
+        image: ImageTool,
+        quote: Quote
       },
       async onChange(api) {
         const data = await api.saver.save();

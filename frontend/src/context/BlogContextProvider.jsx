@@ -14,8 +14,8 @@ const BlogContextProvider = ({ children }) => {
         credentials: "include",
       });
       const data = await result.json();
-      console.log("data fetched in contextPrivider", data);
-      console.log("All Blogs", data.blogs);
+      // console.log("data fetched in contextPrivider", data);
+      // console.log("All Blogs", data.blogs);
       if (data.success) {
         setBlogs(data.blogs);
       }
@@ -50,10 +50,10 @@ const BlogContextProvider = ({ children }) => {
     try {
       const fd = new FormData();
       fd.append("title", form_data.title);
-      fd.append("content", form_data.content);
+      fd.append("content", JSON.stringify(form_data.content));
       fd.append("discription", form_data.Discription);
       fd.append("image", form_data.image[0]);
-      console.log("This is form data", fd);
+      // console.log("This is form data", fd);
       const result = await fetch("/blog/api/create", {
         method: "POST",
         credentials: "include",
@@ -86,7 +86,7 @@ const BlogContextProvider = ({ children }) => {
         body: JSON.stringify(form_data),
       });
       const data = await result.json();
-      console.log("Comment creation response", data);
+      // console.log("Comment creation response", data);
       if(data.success) {
         setComments([...comments, data.comment]);
       }
@@ -102,7 +102,7 @@ const BlogContextProvider = ({ children }) => {
         credentials: "include",
       });
       const data = await result.json();
-      console.log("Comments data fetched in contextPrivider", data);
+      // console.log("Comments data fetched in contextPrivider", data);
       setComments(data.comments);
       
     } catch (error) {
@@ -117,7 +117,7 @@ const BlogContextProvider = ({ children }) => {
         credentials: "include",
       });
       const data = await result.json();
-      console.log("Search results", data);
+      // console.log("Search results", data);
       if(data.success){
         setBlogs(data.blogs);
       }
@@ -140,7 +140,7 @@ const BlogContextProvider = ({ children }) => {
       }
 
       const data = await result.json();
-      console.log("Like response", data);
+      // console.log("Like response", data);
 
       if (data.success && data.blog) {
         setBlog(data.blog);

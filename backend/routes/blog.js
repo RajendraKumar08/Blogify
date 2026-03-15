@@ -25,6 +25,8 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     const { title, content } = req.body;
     let { discription } = req.body;
 
+    console.log("Content in api create", content);
+
     if (!discription) {
       const result = await client.responses.create({
         model: "openai/gpt-oss-20b",
@@ -94,6 +96,7 @@ router.get('/api/:id', async (req, res) => {
     if (!blog) {
       return res.status(404).json({ success: false, message: 'Blog not found' });
     }
+    console.log("Blog found: in api get", blog.content);
     return res.json({ success: true, blog });
   }
   catch (error) {
