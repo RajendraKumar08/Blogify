@@ -32,7 +32,11 @@ const userSchema = new Schema({
   likedBlogs: [{
     type: Schema.Types.ObjectId,
     ref: 'Blog'
-  }]
+  }],
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Comment'
+  }],
 
 }, { timestamps: true });
 

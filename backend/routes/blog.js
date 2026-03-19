@@ -76,17 +76,39 @@ router.get('/api/all', async (req, res) => {
 router.get('/api/search', async (req, res) => {
   try {
     const { q } = req.query;
-    // console.log("Search query:", q);
-    const blogs = await Blog.find({
-      title: { $regex: q, $options: 'i' }
-    }).sort({ createdAt: -1 });
+
+    if (!q || !q.trim()) {
+      return res.json({ success: true, blogs: [] });
+    }
+
+    const blogs = await Blog.aggregate([
+      {
+        $search: {
+          index: "default",
+          text: {
+            query: q,
+            path: ["title", "content"],
+            fuzzy: {
+              maxEdits: 2
+            }
+          }
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      },
+      {
+        $limit: 10
+      }
+    ]);
 
     return res.json({ success: true, blogs });
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, error: error.message });
   }
-})
+});
 
 router.get('/api/:id', async (req, res) => {
   try {
@@ -152,6 +174,40 @@ router.post('/api/:id/delete', async (req, res) => {
     return res.json({ success: true, message: 'Blog deleted successfully' });
   } catch (error) {
     console.log("Error deleting blog", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.put('/api/:id/update', upload.single("image"), async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user._id;
+    const { title, content, discription } = req.body;
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: 'Blog not found' });
+    }
+
+    if (blog.createdBy.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized to update this blog' });
+    }
+
+    let imageUrl = blog.imageUrl; // Keep existing image if no new one
+
+    if (req.file) {
+      imageUrl = `/upload/${req.file.filename}`;
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      { title, content, discription, imageUrl },
+      { new: true }
+    ).populate('createdBy');
+
+    return res.json({ success: true, blog: updatedBlog });
+  } catch (error) {
+    console.log("Error updating blog", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });

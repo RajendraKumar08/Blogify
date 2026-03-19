@@ -6,8 +6,10 @@ const BlogContextProvider = ({ children }) => {
   const [blog, setBlog] = useState(null);
   const [comments, setComments] = useState([]);
   const [searchedBlogs, setSearchedBlogs] = useState(false);
+  const [loading, setloading] = useState(false);
 
   const fetch_blogs = useCallback(async () => {
+    setloading(true);
     try {
       const result = await fetch("/blog/api/all", {
         method: "GET",
@@ -15,12 +17,14 @@ const BlogContextProvider = ({ children }) => {
       });
       const data = await result.json();
       // console.log("data fetched in contextPrivider", data);
-      // console.log("All Blogs", data.blogs);
+      console.log("All Blogs", data.blogs);
       if (data.success) {
         setBlogs(data.blogs);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setloading(false);
     }
   }, []);
 
@@ -48,6 +52,7 @@ const BlogContextProvider = ({ children }) => {
 
   const create_blog = async (form_data) => {
     try {
+      setloading(true);
       const fd = new FormData();
       fd.append("title", form_data.title);
       fd.append("content", JSON.stringify(form_data.content));
@@ -66,6 +71,7 @@ const BlogContextProvider = ({ children }) => {
         console.log("This is new blog ",data.blog);
         blogs.push(data.blog);
         setBlogs([...blogs]);
+        setloading(false);
       } else {
         console.error("Blog creation failed:", data.error);
       }
@@ -177,9 +183,40 @@ const BlogContextProvider = ({ children }) => {
     }
   }
 
+  const update_blog = async (blogId, form_data) => {
+    try {
+      const fd = new FormData();
+      fd.append("title", form_data.title);
+      fd.append("content", JSON.stringify(form_data.content));
+      fd.append("discription", form_data.Discription);
+      if (form_data.image && form_data.image[0]) {
+        fd.append("image", form_data.image[0]);
+      }
+      console.log("Updating blog with data", form_data);
+      const result = await fetch(`/blog/api/${blogId}/update`, {
+        method: "PUT",
+        credentials: "include",
+        body: fd,
+      });
+
+      const data = await result.json();
+      console.log("Update response", data);
+      if (data.success) {
+        setBlog(data.blog);
+        setBlogs((prev) => prev.map((b) => (b._id === data.blog._id ? data.blog : b)));
+      } else {
+        console.error("Blog update failed:", data.error);
+      }
+      return data;
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      throw error;
+    }
+  }
+
 
     return (
-    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs, likeBlog, deleteBlog}}>
+    <BlogContext.Provider value={{ blogs, create_blog, fetch_blogs, fetch_blog, blog, create_comment, fetch_comments, comments, searchBlogs, likeBlog, deleteBlog, update_blog, loading, setloading }}>
       {children}
     </BlogContext.Provider>
   );

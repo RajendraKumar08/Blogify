@@ -1,10 +1,21 @@
 const { Router } = require('express');
 const { client } = require("../service/openai");
+const rateLimit = require("express-rate-limit");
 
 const router = Router();
 
+// Strict rate limiter for AI chat/API calls - 2 requests per 15 minutes
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: "Too many AI requests, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+});
+
 // Chatbot endpoint (frontend can POST user questions here)
-router.post('/api/ask', async (req, res) => {
+router.post('/api/ask', chatLimiter, async (req, res) => {
   try {
     const { question } = req.body;
 

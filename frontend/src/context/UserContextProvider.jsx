@@ -3,6 +3,7 @@ import { useState } from "react";
 
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // make a fetch user function that will fetch the user from the backend when we refresh the page
   // and it will solve the problem of losing the user state on refresh
@@ -29,6 +30,7 @@ const UserContextProvider = ({ children }) => {
 
   const CreateAccount = async (form_data) => {
     try {
+      setLoading(true);
       const fd = new FormData();
       fd.append("name", form_data.name);
       fd.append("email", form_data.email);
@@ -53,11 +55,14 @@ const UserContextProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   const Login = async (form_data) => {
     try {
+      setLoading(true);
       const result = await fetch("/user/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -82,6 +87,8 @@ const UserContextProvider = ({ children }) => {
 
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -127,7 +134,7 @@ const UserContextProvider = ({ children }) => {
  
 
   return (
-    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike }}>
+    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike, loading }}>
       {children}
     </UserContext.Provider>
   );

@@ -70,6 +70,10 @@ const BlogPage = () => {
     }
   }
 
+  const handleEdit = () => {
+    navigate(`/edit/${blog._id}`);
+  }
+
   let parsedContent = null;
 
 try {
@@ -83,107 +87,194 @@ try {
   return (
     <>
       {blog ? (
-        <>
-          <div className="flex flex-col justify-center items-center">
-            {blog.imageUrl && <img className="border mt-3.5" width={623} src={`http://localhost:3000${blog.imageUrl}`} alt={blog.title} />}
-            <h1 className="font-bold text-2xl text-center">{blog.title}</h1>
-            <div className="w-1/2 mt-2">
-  {parsedContent?.blocks?.map((block, index) => {
+        <div className="min-h-screen bg-gray-50">
+          {/* Blog Header Section */}
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {/* Blog Image */}
+            {blog.imageUrl && (
+              <div className="mb-6 sm:mb-8 rounded-lg overflow-hidden shadow-md">
+                <img 
+                  className="w-full h-auto object-cover max-h-96 sm:max-h-full" 
+                  src={`http://localhost:3000${blog.imageUrl}`} 
+                  alt={blog.title} 
+                />
+              </div>
+            )}
+            
+            {/* Blog Title */}
+            <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center mb-6 text-gray-900">
+              {blog.title}
+            </h1>
 
-    if (block.type === "header") {
-      return (
-        <h2 key={index} className="text-2xl font-bold mt-4">
-          {block.data.text}
-        </h2>
-      );
-    }
+            {/* Author Info */}
+            <div className="bg-white rounded-lg shadow p-4 sm:p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-gray-700">
+                <p className="text-sm text-gray-600">Created By</p>
+                <p className="font-semibold text-gray-900">{blog.createdBy.name}</p>
+              </div>
+              
+              {/* Like Button */}
+              <button 
+                onClick={handlelike}
+                className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+                  isBlogLikedByUser
+                    ? 'bg-red-500 text-white hover:bg-red-600 shadow-md'
+                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                }`}
+              >
+                <span>❤️</span>
+                <span>{blog.likes.length}</span>
+              </button>
+            </div>
 
-    if (block.type === "paragraph") {
-      return (
-        <p key={index} className="mt-2 leading-relaxed">
-          {block.data.text}
-        </p>
-      );
-    }
+            {/* Edit/Delete Buttons - Only show for owner */}
+            {blog.createdBy._id === user?._id && (
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                <button 
+                  onClick={handleEdit}
+                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-all duration-200 shadow-md"
+                >
+                  ✏️ Edit Blog
+                </button>
+                <button 
+                  onClick={handleDelete}
+                  className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 shadow-md"
+                >
+                  🗑️ Delete Blog
+                </button>
+              </div>
+            )}
 
-    if (block.type === "image") {
-      return (
-        <img
-          key={index}
-          src={block.data.file?.url || block.data.url}
-          alt=""
-          className="my-4 rounded"
-        />
-      );
-    }
+            {/* Blog Content */}
+            <div className="bg-white rounded-lg shadow p-6 sm:p-8 mb-12 prose prose-sm sm:prose lg:prose-lg max-w-none">
+              {parsedContent?.blocks?.map((block, index) => {
+                if (block.type === "header") {
+                  return (
+                    <h2 key={index} className="text-xl sm:text-2xl font-bold mt-6 mb-4 text-gray-900">
+                      {block.data.text}
+                    </h2>
+                  );
+                }
 
-    if (block.type === "list") {
-      return (
-        <ul key={index} className="list-disc ml-6">
-          {block.data.items.map((item, i) => {
-            const itemText =
-              typeof item === "string"
-                ? item
-                : item?.content ?? JSON.stringify(item);
+                if (block.type === "paragraph") {
+                  return (
+                    <p key={index} className="mt-4 leading-relaxed text-gray-700 text-base sm:text-lg">
+                      {block.data.text}
+                    </p>
+                  );
+                }
 
-            return <li key={i}>{itemText}</li>;
-          })}
-        </ul>
-      );
-    }
+                if (block.type === "image") {
+                  return (
+                    <img
+                      key={index}
+                      src={block.data.file?.url || block.data.url}
+                      alt=""
+                      className="my-6 rounded-lg shadow-md w-full h-auto object-cover"
+                    />
+                  );
+                }
 
-    if (block.type === "quote") {
-      return (
-        <blockquote key={index} className="border-l-4 pl-4 italic my-3">
-          {block.data.text}
-        </blockquote>
-      );
-    }
+                if (block.type === "list") {
+                  return (
+                    <ul key={index} className="list-disc ml-6 space-y-2 text-gray-700">
+                      {block.data.items.map((item, i) => {
+                        const itemText =
+                          typeof item === "string"
+                            ? item
+                            : item?.content ?? JSON.stringify(item);
 
-    if (block.type === "code") {
-      return (
-        <pre key={index} className="bg-gray-100 p-3 rounded overflow-x-auto">
-          <code>{block.data.code}</code>
-        </pre>
-      );
-    }
+                        return <li key={i} className="text-base sm:text-lg">{itemText}</li>;
+                      })}
+                    </ul>
+                  );
+                }
 
-    return null;
-  })}
-</div>
-            <button onClick={handlelike} className="border px-3 hover:cursor-pointer hover:bg-blue-400 transition-all hover:text-white">
-              {blog.likes.length} {isBlogLikedByUser ? "Liked" : "Like"}
-            </button>
-            <div>
-              <p>Created By : {blog.createdBy.name}</p>
-              {blog.createdBy._id === user?._id && <button onClick={handleDelete} className="border px-3 hover:cursor-pointer hover:bg-red-400 transition-all hover:text-white">
-                Delete Blog
-              </button>}
+                if (block.type === "quote") {
+                  return (
+                    <blockquote key={index} className="border-l-4 border-blue-500 pl-4 italic my-6 bg-blue-50 py-4 pr-4 rounded text-gray-700">
+                      {block.data.text}
+                    </blockquote>
+                  );
+                }
+
+                if (block.type === "code") {
+                  return (
+                    <pre key={index} className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6 text-sm">
+                      <code>{block.data.code}</code>
+                    </pre>
+                  );
+                }
+
+                return null;
+              })}
             </div>
           </div>
-          <div className="flex flex-col justify-center items-center mt-5">
-            <h2 className="font-bold text-xl mt-5 mb-3.5">Comments</h2>
-            <form action="" onSubmit={handleSubmit(onSubmit)}>
-              <input type="text" id="content" name="content" className='border p-2 mb-4 mr-2' {...register("content", { required: true })} />
-              <button className='bg-blue-500 text-white p-2 rounded hover:cursor-pointer hover:bg-blue-900 transition-all' type="submit">Add comment</button>
-            </form>
-            <div>
-              {comments.filter(comment => comment.blog == blog._id).map(filteredComment => (
-                <div key={filteredComment._id} className="border p-2 m-2">
-                  <div className="flex items-center align-center justify-start gap-2 mt-1.5">
-                  <img width="30" className="rounded-full object-cover h-12 w-12" src={`http://localhost:3000${filteredComment.createdBy.profileImg}`} alt="" />
-                    <p className="text-sm opacity-60">{filteredComment.createdBy.name}</p>
-                  </div>
-                  <p className="font-bold">{filteredComment.content}</p>
+
+          {/* Comments Section */}
+          <div className="bg-white border-t border-gray-200 py-8 sm:py-12">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="font-bold text-2xl sm:text-3xl mb-8 text-gray-900">💬 Comments</h2>
+
+              {/* Add Comment Form */}
+              <form onSubmit={handleSubmit(onSubmit)} className="mb-8">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    id="content"
+                    name="content"
+                    placeholder="Add a thoughtful comment..."
+                    className='flex-1 border border-gray-300 rounded-lg p-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                    {...register("content", { required: true })}
+                  />
+                  <button
+                    className='bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-all duration-200 shadow-md whitespace-nowrap'
+                    type="submit"
+                  >
+                    Post
+                  </button>
                 </div>
-              ))}
+              </form>
+
+              {/* Comments List */}
+              <div className="space-y-4">
+                {comments.filter(comment => comment.blog == blog._id).length > 0 ? (
+                  comments.filter(comment => comment.blog == blog._id).map(filteredComment => (
+                    <div key={filteredComment._id} className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-3 mb-3">
+                        <img
+                          className="rounded-full object-cover h-10 w-10 sm:h-12 sm:w-12 shrink-0"
+                          src={`http://localhost:3000${filteredComment.createdBy.profileImg}`}
+                          alt={filteredComment.createdBy.name}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                            {filteredComment.createdBy.name}
+                          </p>
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            {new Date(filteredComment.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                        {filteredComment.content}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 text-base">No comments yet. Be the first to comment!</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+
           <ChatBot />
-        </>
+        </div>
 
       ) : (
-        <p>Loading...</p>
+        <p className="text-center py-12 text-gray-500">Loading...</p>
       )}
     </>
   )

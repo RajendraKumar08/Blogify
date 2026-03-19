@@ -1,4 +1,5 @@
-require("dotenv").config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -13,6 +14,26 @@ const chatRoute = require('./routes/chat');
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
+const rateLimit = require("express-rate-limit");
+
+// Strict rate limiter for authentication routes - 5 requests per 15 minutes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: "Too many login/signup attempts, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+// Comment rate limiter - 20 requests per 15 minutes
+const commentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  message: "Too many comments posted, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('MongoDB connected'))
