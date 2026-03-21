@@ -2,7 +2,8 @@ const { Router } = require('express')
 const path = require("path")
 const multer = require("multer");
 const Blog = require('../models/blog')
-const {client} = require("../service/openai");
+const View = require('../models/blogViews')
+const { client } = require("../service/openai");
 // const openai = require("../service/openai")
 
 const router = Router()
@@ -51,7 +52,7 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     // }
 
 
-    const blog = await Blog.create({ title, content, discription, imageUrl, createdBy: req.user._id});
+    const blog = await Blog.create({ title, content, discription, imageUrl, createdBy: req.user._id });
 
     // console.log(blog);
     return res.status(201).json({ success: true, blog });
@@ -80,14 +81,13 @@ router.get('/api/search', async (req, res) => {
     if (!q || !q.trim()) {
       return res.json({ success: true, blogs: [] });
     }
-
     const blogs = await Blog.aggregate([
       {
         $search: {
           index: "default",
           text: {
             query: q,
-            path: ["title", "content"],
+            path: ["title"],
             fuzzy: {
               maxEdits: 2
             }
@@ -95,7 +95,19 @@ router.get('/api/search', async (req, res) => {
         }
       },
       {
-        $sort: { createdAt: -1 }
+        $project: {
+          title: 1,
+          description: 1,
+          content: 1,
+          imageUrl: 1,
+          createdAt: 1,
+          score: { $meta: "searchScore" }
+        }
+      },
+      {
+        $sort: {
+          score: -1
+        }
       },
       {
         $limit: 10
@@ -211,6 +223,35 @@ router.put('/api/:id/update', upload.single("image"), async (req, res) => {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
+
+router.post('/api/:id/view', async (req, res) => {
+  try{
+    const blogId = req.params.id;
+
+    
+    const userId = req.user ? req.user._id : null;
+
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const query = userId ? {BlogId: blogId, UserId : userId} : {BlogId: blogId, IP: ip};
+
+    const alreadyCounted = await View.findOne(query);
+    if(!alreadyCounted){
+      const view = new View({
+        BlogId: blogId,
+        UserId: userId,
+        IP: ip
+      });
+      await view.save();
+      await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });
+    }
+
+    return res.json({success: true, message: 'View counted'});
+
+  } catch(error){
+    console.log("Error in view count", error);
+    return res.status(500).json({ success: false, error: error.message || 'Server error' });
+  }
+})
 
 module.exports = router;
 

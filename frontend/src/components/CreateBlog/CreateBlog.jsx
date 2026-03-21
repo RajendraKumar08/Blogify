@@ -66,10 +66,10 @@ const CreateBlog = () => {
 
                         {/* Description Field */}
                         <div>
-                            <label htmlFor="description" className='block text-sm font-semibold text-gray-700 mb-2'>Description (max 100 characters) *</label>
+                            <label htmlFor="description" className='block text-sm font-semibold text-gray-700 mb-2'>Description (max 100 characters) </label>
                             <textarea 
                                 id="description"
-                                placeholder='Write a brief description of your blog...'
+                                placeholder='Write a brief description of your blog...If you dont want to write description, you can leave it blank our AI will generate description for you.'
                                 rows='3'
                                 className='w-full border-2 border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 resize-none'
                                 {...register("Discription", {

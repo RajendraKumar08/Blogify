@@ -117,6 +117,7 @@ const BlogContextProvider = ({ children }) => {
   }
 
   const searchBlogs = async(query) => {
+    setloading(true);
     try{
       const result = await fetch(`/blog/api/search?q=${encodeURIComponent(query)}`, {
         method: "GET",
@@ -130,7 +131,10 @@ const BlogContextProvider = ({ children }) => {
     } catch(error){
       console.log(error);
 
+    } finally {
+      setloading(false);
     }
+
   }
 
   const likeBlog = async (blogId) => {
@@ -184,6 +188,7 @@ const BlogContextProvider = ({ children }) => {
   }
 
   const update_blog = async (blogId, form_data) => {
+    setloading(true);
     try {
       const fd = new FormData();
       fd.append("title", form_data.title);
@@ -211,6 +216,8 @@ const BlogContextProvider = ({ children }) => {
     } catch (error) {
       console.error("Error updating blog:", error);
       throw error;
+    } finally{
+      setloading(false);
     }
   }
 

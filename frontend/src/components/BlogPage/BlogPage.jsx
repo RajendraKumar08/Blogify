@@ -26,6 +26,8 @@ const BlogPage = () => {
     reset,
   } = useForm()
 
+  
+
 
   useEffect(() => {
     if (id) {
@@ -73,6 +75,20 @@ const BlogPage = () => {
   const handleEdit = () => {
     navigate(`/edit/${blog._id}`);
   }
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        fetch(`/blog/api/${encodeURIComponent(id)}/view`, {
+          method: "POST",
+          credentials: "include",
+        });
+        // console.log("View count updated", result);
+      }, 4000)
+      console.log("Result in view api in frontend")
+
+      return () => clearTimeout(timer);
+    }, [blog]);
+
 
   let parsedContent = null;
 
@@ -125,6 +141,9 @@ try {
                 <span>❤️</span>
                 <span>{blog.likes.length}</span>
               </button>
+              <p className="text-sm text-gray-500 mt-2 sm:mt-0">
+                {blog.views} views
+              </p>
             </div>
 
             {/* Edit/Delete Buttons - Only show for owner */}
