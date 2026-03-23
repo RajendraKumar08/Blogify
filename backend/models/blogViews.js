@@ -13,7 +13,7 @@ const BlogSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expireAfterSeconds: 86400 // 1 day
+        expires: 86400 // 1 day
     }
 })
 

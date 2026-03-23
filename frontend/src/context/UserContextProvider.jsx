@@ -4,6 +4,7 @@ import { useState } from "react";
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [otheruser, setotheruser] = useState(null);
 
   // make a fetch user function that will fetch the user from the backend when we refresh the page
   // and it will solve the problem of losing the user state on refresh
@@ -131,10 +132,25 @@ const UserContextProvider = ({ children }) => {
     }
   }
 
- 
+  const fetchUserById = async (userId) => {
+    try {
+      const result = await fetch(`/user/api/${encodeURIComponent(userId)}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await result.json();
+      console.log("Fetch user by ID response", data);
+      setotheruser(data.user);
+      return data.user;
+    } catch (error) {
+      console.log("Error fetching user by ID", error);
+      return null;
+    }
+  };
 
   return (
-    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike, loading }}>
+    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike, fetchUserById, loading , otheruser, setotheruser}}>
       {children}
     </UserContext.Provider>
   );

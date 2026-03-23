@@ -12,6 +12,7 @@ import BlogContextProvider from './context/BlogContextProvider.jsx'
 import BlogPage from './components/BlogPage/BlogPage.jsx'
 import ProfilePage from './components/profilePage/profilePage.jsx'
 import EditBlog from './components/EditBlog/EditBlog.jsx'
+import OtherProfile from './components/OtherProfile/OtherProfile.jsx'
 
 const router = createBrowserRouter(
   [
@@ -46,6 +47,10 @@ const router = createBrowserRouter(
         {
           path : "edit/:id",
           element : <EditBlog />
+        },
+        {
+          path : "user/:id",
+          element : <OtherProfile />
         }
       ]
     }

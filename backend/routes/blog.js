@@ -31,7 +31,7 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     if (!discription) {
       const result = await client.responses.create({
         model: "openai/gpt-oss-20b",
-        input: "Generate A short Discription within 60 character for a blog post with the following content: " + content,
+        input: "Generate A short Discription of exact 60 character for a blog post with the following content: " + content,
       });
       // console.log("OpenAI Response:", result.output_text);
       discription = result.output_text;
@@ -51,8 +51,18 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     //   embeddings.push(...embeddingResponse.data[0].embedding);
     // }
 
+    const tagsResult = await client.responses.create({
+      model: "openai/gpt-oss-20b",
+      input: `Extract 5-7 relevant tags from this blog post content. Return them as a comma-separated string.\n\nContent:\n${content}`,
+    });
 
-    const blog = await Blog.create({ title, content, discription, imageUrl, createdBy: req.user._id });
+    console.log("Tags Result", tagsResult)
+    const tagsString = tagsResult.output_text.trim();
+    console.log("Tags String", tagsString);
+    const problemTags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+
+    const blog = await Blog.create({ title, content, discription, imageUrl, createdBy: req.user._id, problemTags });
 
     // console.log(blog);
     return res.status(201).json({ success: true, blog });
@@ -81,13 +91,23 @@ router.get('/api/search', async (req, res) => {
     if (!q || !q.trim()) {
       return res.json({ success: true, blogs: [] });
     }
+    const result = await client.responses.create({
+      model :  "openai/gpt-oss-20b",
+      input : `Extract 2-3 relevant tags from this query ${q}. Return them as a comma-separated string`
+    });
+
+    
+    const tagsString = result.output_text.trim();
+    const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    // console.log(tags)
+
     const blogs = await Blog.aggregate([
       {
         $search: {
           index: "default",
           text: {
-            query: q,
-            path: ["title"],
+            query: tags,
+            path: ["title", "problemTags"],
             fuzzy: {
               maxEdits: 2
             }
@@ -101,6 +121,9 @@ router.get('/api/search', async (req, res) => {
           content: 1,
           imageUrl: 1,
           createdAt: 1,
+          comments: 1,
+          views: 1,
+          likes: 1, 
           score: { $meta: "searchScore" }
         }
       },
@@ -110,7 +133,7 @@ router.get('/api/search', async (req, res) => {
         }
       },
       {
-        $limit: 10
+        $limit: 5
       }
     ]);
 
@@ -232,14 +255,14 @@ router.post('/api/:id/view', async (req, res) => {
     const userId = req.user ? req.user._id : null;
 
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const query = userId ? {BlogId: blogId, UserId : userId} : {BlogId: blogId, IP: ip};
+    const query = userId ? {blogId: blogId, userId: userId} : {blogId: blogId, ip: ip};
 
     const alreadyCounted = await View.findOne(query);
     if(!alreadyCounted){
       const view = new View({
-        BlogId: blogId,
-        UserId: userId,
-        IP: ip
+        blogId: blogId,
+        userId: userId,
+        ip: ip
       });
       await view.save();
       await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });

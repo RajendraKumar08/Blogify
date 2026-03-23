@@ -29,10 +29,11 @@ const BlogSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Comment'
   }],
-  views: [{
+  views: {
     type: Number,
     default: 0
-  }],
+  },
+  problemTags : [String],
   
 }, { timestamps: true });
 

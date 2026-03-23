@@ -120,4 +120,22 @@ router.post("/api/managelike", async (req, res) => {
     return res.status(500).json({ success: false, error: "Server error" });
   }
 });
+
+router.get("/api/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).select('-password -salt');
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    return res.json({ success: true, user });
+  } catch (err) {
+    console.log("Error in fetch user by ID:", err);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 module.exports = router

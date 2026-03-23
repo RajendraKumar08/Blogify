@@ -6,6 +6,7 @@ import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
 import ChatBot from "../ChatBot/ChatBot";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const BlogPage = () => {
 
@@ -77,6 +78,8 @@ const BlogPage = () => {
   }
 
     useEffect(() => {
+      if (!id) return;
+      
       const timer = setTimeout(() => {
         fetch(`/blog/api/${encodeURIComponent(id)}/view`, {
           method: "POST",
@@ -87,7 +90,7 @@ const BlogPage = () => {
       console.log("Result in view api in frontend")
 
       return () => clearTimeout(timer);
-    }, [blog]);
+    }, [id]);
 
 
   let parsedContent = null;
@@ -126,7 +129,8 @@ try {
             <div className="bg-white rounded-lg shadow p-4 sm:p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-gray-700">
                 <p className="text-sm text-gray-600">Created By</p>
-                <p className="font-semibold text-gray-900">{blog.createdBy.name}</p>
+                
+                <Link to={user && String(user._id) === String(blog.createdBy._id) ? '/ProfilePage' : `/user/${blog.createdBy._id}`} className="font-semibold text-gray-900">{blog.createdBy.name}</Link>
               </div>
               
               {/* Like Button */}
@@ -267,9 +271,9 @@ try {
                           alt={filteredComment.createdBy.name}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                          <Link className="font-semibold text-gray-900 text-sm sm:text-base" to={user && String(user._id) === String(filteredComment.createdBy._id) ? '/ProfilePage' : `/user/${filteredComment.createdBy._id}`}>
                             {filteredComment.createdBy.name}
-                          </p>
+                          </Link>
                           <p className="text-xs sm:text-sm text-gray-500">
                             {new Date(filteredComment.createdAt).toLocaleDateString()}
                           </p>

@@ -11,11 +11,15 @@ function Home() {
   const { blogs, fetch_blogs, searchBlogs, loading } = useContext(BlogContext);
   const [sortBy, setSortBy] = useState('newest');
 
+  
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm()
+
+  
 
 
   useEffect(() => {
@@ -91,6 +95,7 @@ function Home() {
               <option value="oldest">Oldest</option>
               <option value="mostLiked">Most Liked</option>
               <option value="leastLiked">Least Liked</option>
+              <option value="Trending">Trending</option>
             </select>
           </div>
 
@@ -130,6 +135,8 @@ function Home() {
                         return b.likes.length - a.likes.length;
                       case 'leastLiked':
                         return a.likes.length - b.likes.length;
+                      case 'Trending':
+                        return b.views - a.views;
                       default:
                         return 0;
                     }
@@ -158,9 +165,9 @@ function Home() {
                       </p>
 
                       <div className="flex items-center gap-2">
-                        <h5 className="text-sm text-gray-700">Liked By : {blog.likes?.length || 0} people</h5>
-                        <h5 className="text-sm text-gray-700">Comments : {blog.comments?.length || 0}</h5>
-                        <h5 className="text-sm text-gray-700">Views : {blog?.views || 0}</h5>
+                        <h5 className="text-sm text-gray-700">Liked By : {blog.likes?.length || 0} people | </h5>
+                        <h5 className="text-sm text-gray-700">Comments : {blog.comments?.length || 0} | </h5>
+                        <h5 className="text-sm text-gray-700">Views : {blog.views || 0}</h5>
                       </div>
 
                       <Link
