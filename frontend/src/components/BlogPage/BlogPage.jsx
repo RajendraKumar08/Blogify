@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import BlogContext from "../../context/BlogContext";
 import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,8 @@ const BlogPage = () => {
   const { id } = useParams();
   const { fetch_blog, blog, create_comment, fetch_comments, comments, likeBlog, deleteBlog } = useContext(BlogContext);
   const { user, managelike, fetchUser } = useContext(userContext);
+  const [timespent, setTimespent] = useState(0);
+  const timespentRef = useRef(0);
 
   const isBlogLikedByUser = Boolean(
     blog && user && blog.likes && blog.likes.some((id) => id.toString() === user._id.toString())
@@ -27,6 +29,50 @@ const BlogPage = () => {
     reset,
   } = useForm()
 
+  useEffect(() => {
+    let interval;
+    let lastactive = Date.now();
+
+    const handleActivity = () => {
+      lastactive = Date.now();
+    };
+
+    document.addEventListener("mousemove", handleActivity);
+    document.addEventListener("keydown", handleActivity);
+    document.addEventListener("scroll", handleActivity);
+    document.addEventListener("click", handleActivity);
+
+    interval = setInterval(() => {
+      const inactiveDuration = Date.now() - lastactive;
+      // Increment time spent only if user has been active within the last 5 seconds
+      if (inactiveDuration <= 10000) {
+        setTimespent((prev) => {
+          const newTime = prev + 1;
+          timespentRef.current = newTime;
+          return newTime;
+        });
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("mousemove", handleActivity);
+      document.removeEventListener("keydown", handleActivity);
+      document.removeEventListener("scroll", handleActivity);
+      document.removeEventListener("click", handleActivity);
+
+      if (timespentRef.current > 0) {
+        fetch(`/blog/api/${encodeURIComponent(id)}/read-time`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ time: timespentRef.current }),
+          keepalive: true,
+        }).catch(err => console.error("Failed to update read time", err));
+      }
+    };
+  }, [id]);
   
 
 

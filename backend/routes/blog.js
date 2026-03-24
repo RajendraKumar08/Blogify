@@ -191,6 +191,23 @@ router.post('/api/:id/like', async (req, res) => {
   }
 });
 
+router.post('api/:id/read-time', async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const { time } = req.body;
+    
+    if (time && typeof time === 'number') {
+      // The Blog model already has a `readTime` field, so we use $inc to accumulate the total time
+      await Blog.findByIdAndUpdate(blogId, { $inc: { readTime: time } });
+    }
+    
+    return res.json({ success: true, message: 'Read time updated successfully' });
+  } catch (error) {
+    console.log("Error updating read time", error);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 router.post('/api/:id/delete', async (req, res) => {
   try {
     const blogId = req.params.id;
@@ -275,6 +292,23 @@ router.post('/api/:id/view', async (req, res) => {
     return res.status(500).json({ success: false, error: error.message || 'Server error' });
   }
 })
+
+router.post('/api/:id/read-time', async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const { time } = req.body;
+    
+    if (time && typeof time === 'number') {
+      // The Blog model already has a `readTime` field, so we use $inc to accumulate the total time
+      await Blog.findByIdAndUpdate(blogId, { $inc: { readTime: time } });
+    }
+    
+    return res.json({ success: true, message: 'Read time updated successfully' });
+  } catch (error) {
+    console.log("Error updating read time", error);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
 
 module.exports = router;
 

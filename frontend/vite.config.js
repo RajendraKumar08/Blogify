@@ -16,6 +16,7 @@ export default defineConfig({
       '/blog/api/:id/delete' : 'http://localhost:3000',
       '/blog/api/:id/view' : 'http://localhost:3000',
       '/user/api/:id' : 'http://localhost:3000',
+      '/blog/api/:id/read-time' : 'http://localhost:3000',
     }
   },
   plugins: [

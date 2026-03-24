@@ -34,6 +34,10 @@ const BlogSchema = new Schema({
     default: 0
   },
   problemTags : [String],
+  readTime : {
+    type: Number, 
+    default: 0
+  },
   
 }, { timestamps: true });
 
