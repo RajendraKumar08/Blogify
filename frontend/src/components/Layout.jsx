@@ -1,6 +1,6 @@
 import React from 'react';
-import Footer from './Footer/Footer';
-import Header from './Header/Header';
+import Footer from './Footer/footer.jsx';
+import Header from './Header/header.jsx';
 import { Outlet, useLocation } from 'react-router-dom';
 import ChatBot from './ChatBot/ChatBot';
 
