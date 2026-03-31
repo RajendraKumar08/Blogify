@@ -26,7 +26,7 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     const { title, content } = req.body;
     let { discription } = req.body;
 
-    console.log("Content in api create", content);
+    // console.log("Content in api create", content);
 
     if (!discription) {
       const result = await client.responses.create({
@@ -58,6 +58,8 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
 
     console.log("Tags Result", tagsResult)
     const tagsString = tagsResult.output_text.trim();
+
+    // const tagsString = "Study, Focus, Motivation, Health, Fitness"
     console.log("Tags String", tagsString);
     const problemTags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
@@ -87,6 +89,7 @@ router.get('/api/all', async (req, res) => {
 router.get('/api/search', async (req, res) => {
   try {
     const { q } = req.query;
+    console.log("q in search ", q);
 
     if (!q || !q.trim()) {
       return res.json({ success: true, blogs: [] });
@@ -96,10 +99,11 @@ router.get('/api/search', async (req, res) => {
       input : `Extract 2-3 relevant tags from this query ${q}. Return them as a comma-separated string`
     });
 
+
     
     const tagsString = result.output_text.trim();
     const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-    // console.log(tags)
+    console.log("Tags in search ",tags)
 
     const blogs = await Blog.aggregate([
       {
@@ -107,7 +111,7 @@ router.get('/api/search', async (req, res) => {
           index: "default",
           text: {
             query: tags,
-            path: ["title", "problemTags"],
+            path: ["title"],
             fuzzy: {
               maxEdits: 2
             }
@@ -136,6 +140,8 @@ router.get('/api/search', async (req, res) => {
         $limit: 5
       }
     ]);
+
+    console.log("searched blog", blogs);
 
     return res.json({ success: true, blogs });
 
