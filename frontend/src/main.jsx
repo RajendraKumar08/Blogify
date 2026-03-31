@@ -10,7 +10,7 @@ import Login from './components/Login/Login.jsx'
 import UserContextProvider from './context/UserContextProvider.jsx'
 import BlogContextProvider from './context/BlogContextProvider.jsx'
 import BlogPage from './components/BlogPage/BlogPage.jsx'
-import ProfilePage from './components/profilePage/profilePage.jsx'
+import ProfilePage from './components/profilePage/ProfilePage.jsx'
 import EditBlog from './components/EditBlog/EditBlog.jsx'
 import OtherProfile from './components/OtherProfile/OtherProfile.jsx'
 
