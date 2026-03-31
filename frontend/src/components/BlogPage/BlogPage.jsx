@@ -4,7 +4,6 @@ import { useEffect, useState, useContext, useRef } from "react";
 import BlogContext from "../../context/BlogContext";
 import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
-import ChatBot from "../ChatBot/ChatBot";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -339,7 +338,6 @@ try {
             </div>
           </div>
 
-          <ChatBot />
         </div>
 
       ) : (

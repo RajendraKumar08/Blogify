@@ -124,7 +124,7 @@ const BlogContextProvider = ({ children }) => {
         credentials: "include",
       });
       const data = await result.json();
-      // console.log("Search results", data);
+      console.log("Search results", data);
       if(data.success){
         setBlogs(data.blogs);
       }

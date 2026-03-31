@@ -1,10 +1,11 @@
 const { Router } = require('express');
 const { client } = require("../service/openai");
 const rateLimit = require("express-rate-limit");
+const Blog = require('../models/blog')
 
 const router = Router();
 
-// Strict rate limiter for AI chat/API calls - 2 requests per 15 minutes
+// Strict rate limiter for AI chat/API calls - 20 requests per 15 minutes
 const chatLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 20,
@@ -17,7 +18,22 @@ const chatLimiter = rateLimit({
 // Chatbot endpoint (frontend can POST user questions here)
 router.post('/api/ask', chatLimiter, async (req, res) => {
   try {
-    const { question } = req.body;
+    const { question, blogId } = req.body;
+    console.log("This is the req body", req.body);
+
+    if (!blogId) {
+      return res.status(400).json({ success: false, error: 'Blog ID is required' });
+    }
+
+    const blog = await Blog.findById(blogId);
+    console.log("This is the blog in chat", blog);
+
+    if (!blog) {
+      return res.status(404).json({ success: false, error: 'Blog not found' });
+    }
+
+    const content = blog.content;
+    console.log("This is the blog content in chat", content);
 
     if (!question || typeof question !== 'string' || !question.trim()) {
       return res.status(400).json({ success: false, error: 'Question is required' });
@@ -27,10 +43,10 @@ router.post('/api/ask', chatLimiter, async (req, res) => {
 
     const response = await client.responses.create({
       model: "openai/gpt-oss-20b",
-      input: "Give me a helpful response to this question or provide a helpful response and yes give me the response in form of paragraph, no bullets points and no emojis. Here is the question or word :  " + question,
+      input: `You have to give a detail response in plain text paragraph of this question "${question}"  and you have to give the response based on this content ${content}. Like someone is reading this content and he/she stuck at somewherew he/she is asking the question so you have to give the response according to this given content `,
     });
 
-    console.log("OpenAI Response:", response.output_text);
+    // console.log("OpenAI Response:", response.output_text);
 
     const answer = response.output_text || (response.output && response.output[0] && response.output[0].content && response.output[0].content[0] && response.output[0].content[0].text) || 'No response from AI';
 

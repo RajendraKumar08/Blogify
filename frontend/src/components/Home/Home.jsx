@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import BlogContext from "../../context/BlogContext";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form"
-import ChatBot from "../ChatBot/ChatBot";
 import Loading from "../Loading/Loading";
 
 import { useEffect } from "react";

@@ -108,10 +108,10 @@ router.get('/api/search', async (req, res) => {
     const blogs = await Blog.aggregate([
       {
         $search: {
-          index: "default",
+          index: "blogifySearchIndex",
           text: {
-            query: tags,
-            path: ["title"],
+            query: q,
+            path: ["title", "discription"],
             fuzzy: {
               maxEdits: 2
             }
@@ -121,7 +121,7 @@ router.get('/api/search', async (req, res) => {
       {
         $project: {
           title: 1,
-          description: 1,
+          discription: 1,
           content: 1,
           imageUrl: 1,
           createdAt: 1,
@@ -129,6 +129,11 @@ router.get('/api/search', async (req, res) => {
           views: 1,
           likes: 1, 
           score: { $meta: "searchScore" }
+        }
+      },
+      {
+        $match : {
+          score : { $gt : 1}
         }
       },
       {
@@ -141,7 +146,7 @@ router.get('/api/search', async (req, res) => {
       }
     ]);
 
-    console.log("searched blog", blogs);
+    // console.log("searched blog", blogs);
 
     return res.json({ success: true, blogs });
 
