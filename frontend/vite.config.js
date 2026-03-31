@@ -2,21 +2,23 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+const API = import.meta.env.VITE_API
+
 // https://vite.dev/config/
 export default defineConfig({
   server : {
     proxy : {
-      '/user/api' : 'http://localhost:3000',
-      '/blog/api' : 'http://localhost:3000',
-      '/comment/api' : 'http://localhost:3000',
-      '/blog/api/search' : 'http://localhost:3000',
-      '/chat/api' : 'http://localhost:3000',
-      '/blog/api/:id/like' : 'http://localhost:3000',
-      '/user/api/managelike' : 'http://localhost:3000',
-      '/blog/api/:id/delete' : 'http://localhost:3000',
-      '/blog/api/:id/view' : 'http://localhost:3000',
-      '/user/api/:id' : 'http://localhost:3000',
-      '/blog/api/:id/read-time' : 'http://localhost:3000',
+      '/user/api' : API,
+      '/blog/api' : API,
+      '/comment/api' : API,
+      '/blog/api/search' : API,
+      '/chat/api' : API,
+      '/blog/api/:id/like' : API,
+      '/user/api/managelike' : API,
+      '/blog/api/:id/delete' : API,
+      '/blog/api/:id/view' : API,
+      '/user/api/:id' : API,
+      '/blog/api/:id/read-time' : API,
     }
   },
   plugins: [
