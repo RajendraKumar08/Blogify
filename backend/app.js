@@ -16,6 +16,12 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
 const rateLimit = require("express-rate-limit");
 
+// add cors policy for frontend
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
+
 // Strict rate limiter for authentication routes - 5 requests per 15 minutes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
