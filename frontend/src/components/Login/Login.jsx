@@ -16,11 +16,11 @@ function Login() {
         formState: { errors },
     } = useForm()
 
-    const onSubmit = async  (data) => {
+    const onSubmit = async (data) => {
         // e.preventdefault();
         await Login(data);
         navigate("/");
-        
+
     }
 
     return (
@@ -31,16 +31,16 @@ function Login() {
                     <p className='text-center text-gray-600 mb-8'>Sign in to your account to continue</p>
 
                     <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
-                        
+
                         {/* Email Field */}
                         <div>
                             <label htmlFor="email" className='block text-sm font-semibold text-gray-700 mb-2'>Email Address</label>
-                            <input 
+                            <input
                                 id="email"
                                 type="email"
                                 placeholder='Enter your email...'
                                 className='w-full border-2 border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200'
-                                {...register("email", { required: "Email is required" })} 
+                                {...register("email", { required: "Email is required" })}
                             />
                             {errors.email && <span className='text-red-500 text-sm font-medium mt-1 block'>Email is required</span>}
                         </div>
@@ -48,18 +48,18 @@ function Login() {
                         {/* Password Field */}
                         <div>
                             <label htmlFor="password" className='block text-sm font-semibold text-gray-700 mb-2'>Password</label>
-                            <input 
+                            <input
                                 id="password"
                                 type="password"
                                 placeholder='Enter your password...'
                                 className='w-full border-2 border-gray-300 rounded-lg p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200'
-                                {...register("password", { required: true, minLength: 6 })} 
+                                {...register("password", { required: true, minLength: 6 })}
                             />
                             {errors.password && <span className='text-red-500 text-sm font-medium mt-1 block'>Password must be at least 6 characters</span>}
                         </div>
 
                         {/* Submit Button */}
-                        <button 
+                        <button
                             className={`w-full font-semibold py-3 rounded-lg transition-all duration-200 shadow-md ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105'}`}
                             type="submit"
                             disabled={loading}

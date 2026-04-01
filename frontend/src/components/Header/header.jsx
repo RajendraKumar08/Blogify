@@ -14,11 +14,11 @@ const Header = () => {
   }, []);
 
   const handle_login = () => {
-    navigate("/login");
+    navigate("/Login");
   };
 
   const handle_create_account = () => {
-    navigate("/createaccount");
+    navigate("/CreateAccount");
   };
 
   const handle_logout = () => {

@@ -1,6 +1,5 @@
 import BlogContext from "./BlogContext";
 import { useState, useCallback } from "react";
-import { defineConfig, loadEnv } from 'vite'
 
 const BlogContextProvider = ({ children }) => {
   const [blogs, setBlogs] = useState([]);
@@ -9,8 +8,7 @@ const BlogContextProvider = ({ children }) => {
   const [searchedBlogs, setSearchedBlogs] = useState(false);
   const [loading, setloading] = useState(false);
 
-  const env = loadEnv(mode, process.cwd(), '')
-  const API = env.VITE_BACKEND_URL;
+  const API = import.meta.env.VITE_BACKEND_URL || '';
 
   const fetch_blogs = useCallback(async () => {
     setloading(true);

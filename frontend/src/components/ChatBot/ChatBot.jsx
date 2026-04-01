@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useContext } from "react";
 import BlogContext from "../../context/BlogContext";
-import { defineConfig, loadEnv } from 'vite'
 
 const ChatBot = ({
   className = "",
@@ -18,8 +17,7 @@ const ChatBot = ({
   const chatRef = useRef(null);
   const {blog} = useContext(BlogContext);
 
-  const env = loadEnv(mode, process.cwd(), '')
-  const API = env.VITE_BACKEND_URL;
+  const API = import.meta.env.VITE_BACKEND_URL || '';
 
   // Check for mobile screen size
   useEffect(() => {

@@ -1,14 +1,12 @@
 import UserContext from "./UserContext";
 import { useState } from "react";
-import { defineConfig, loadEnv } from 'vite'
 
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [otheruser, setotheruser] = useState(null);
 
-  const env = loadEnv(mode, process.cwd(), '')
-  const API = env.VITE_BACKEND_URL;
+  const API = import.meta.env.VITE_BACKEND_URL || '';
 
   // make a fetch user function that will fetch the user from the backend when we refresh the page
   //  and it will solve the problem of losing the user state on refresh

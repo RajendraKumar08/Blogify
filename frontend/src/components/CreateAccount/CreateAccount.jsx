@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { useForm } from "react-hook-form"
-import { useNavigate } from 'react-router-dom';
-import UserContext from "../../../src/context/UserContext";
+import { useNavigate, Link } from 'react-router-dom';
+import UserContext from "../../context/UserContext";
 
 
 function CreateAccount() {
 
   const navigate = useNavigate();
-  const { CreateAccount, loading } = useContext(UserContext);
+  const { CreateAccount: registerUser, loading } = useContext(UserContext);
   const [imagePreview, setImagePreview] = useState(null);
 
   const {
@@ -29,7 +29,7 @@ function CreateAccount() {
   }, [imageFile]);
 
   const onSubmit = async (data) => {
-    await CreateAccount(data);
+    await registerUser(data);
     navigate("/");
   };
 
@@ -133,7 +133,7 @@ function CreateAccount() {
 
           <p className='text-center text-gray-600 mt-6'>
             Already have an account?{' '}
-            <a href='/Login' className='text-blue-600 font-semibold hover:text-blue-700'>Sign in here</a>
+            <Link to='/Login' className='text-blue-600 font-semibold hover:text-blue-700'>Sign in here</Link>
           </p>
         </div>
       </div>

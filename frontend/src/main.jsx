@@ -13,12 +13,14 @@ import BlogPage from './components/BlogPage/BlogPage.jsx'
 import ProfilePage from './components/profilePage/ProfilePage.jsx'
 import EditBlog from './components/EditBlog/EditBlog.jsx'
 import OtherProfile from './components/OtherProfile/OtherProfile.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 const router = createBrowserRouter(
   [
     {
       path : '/',
       element : <Layout />,
+      errorElement: <ErrorBoundary />,
       children : [
         {
           path : "",
@@ -59,9 +61,11 @@ const router = createBrowserRouter(
 
 
 createRoot(document.getElementById('root')).render(
-  <UserContextProvider>
-    <BlogContextProvider>
-      <RouterProvider router = {router} />
-    </BlogContextProvider>
-  </UserContextProvider>
+  <StrictMode>
+    <UserContextProvider>
+      <BlogContextProvider>
+        <RouterProvider router = {router} />
+      </BlogContextProvider>
+    </UserContextProvider>
+  </StrictMode>
 )

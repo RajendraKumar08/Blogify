@@ -10,6 +10,8 @@ function Home() {
   const { blogs, fetch_blogs, searchBlogs, loading } = useContext(BlogContext);
   const [sortBy, setSortBy] = useState('newest');
 
+  const API = import.meta.env.VITE_BACKEND_URL || '';
+
   
 
   const {
@@ -22,8 +24,11 @@ function Home() {
 
 
   useEffect(() => {
-    fetch_blogs();
-    console.log("Blogs fetched", blogs);
+    const fetch = async () => {
+      await fetch_blogs();
+      console.log("Blogs fetched", blogs);
+    };
+    fetch();
   }, []);
 
   const onSubmit = async (data) => {
@@ -151,7 +156,7 @@ function Home() {
 
                       <img
                         className="w-fit h-fit sm:h-56 object-cover rounded"
-                        src={`http://localhost:3000${blog.imageUrl}`}
+                        src={`${API}${blog.imageUrl}`}
                         alt={blog.title}
                       />
 
