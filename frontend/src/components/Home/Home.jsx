@@ -21,8 +21,8 @@ function Home() {
   
 
 
-  useEffect(async () => {
-    await fetch_blogs();
+  useEffect(() => {
+    fetch_blogs();
     console.log("Blogs fetched", blogs);
   }, []);
 
