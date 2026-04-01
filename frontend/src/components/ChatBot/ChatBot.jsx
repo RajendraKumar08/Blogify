@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useContext } from "react";
 import BlogContext from "../../context/BlogContext";
+import { defineConfig, loadEnv } from 'vite'
 
 const ChatBot = ({
   className = "",
@@ -16,6 +17,9 @@ const ChatBot = ({
 
   const chatRef = useRef(null);
   const {blog} = useContext(BlogContext);
+
+  const env = loadEnv(mode, process.cwd(), '')
+  const API = env.VITE_BACKEND_URL;
 
   // Check for mobile screen size
   useEffect(() => {
@@ -50,7 +54,7 @@ const ChatBot = ({
     setLoading(true);
 
     try {
-      const response = await fetch("/chat/api/ask", {
+      const response = await fetch(`${API}/chat/api/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: userText, blogId: blog._id })
