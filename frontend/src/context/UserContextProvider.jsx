@@ -1,16 +1,20 @@
 import UserContext from "./UserContext";
 import { useState } from "react";
+import { defineConfig, loadEnv } from 'vite'
 
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [otheruser, setotheruser] = useState(null);
 
+  const env = loadEnv(mode, process.cwd(), '')
+  const API = env.VITE_BACKEND_URL;
+
   // make a fetch user function that will fetch the user from the backend when we refresh the page
-  // and it will solve the problem of losing the user state on refresh
+  //  and it will solve the problem of losing the user state on refresh
   const fetchUser = async () => {
     try {
-      const result = await fetch("/user/api/me", {
+      const result = await fetch(`${API}/user/api/me`, {
         method: "GET",
         credentials: "include",
       });
@@ -39,7 +43,7 @@ const UserContextProvider = ({ children }) => {
       fd.append("profileImg", form_data.profileImg[0]);
       console.log("This is form data", fd);
       console.log("profile iamge" , form_data.profileImg[0]);
-      const result = await fetch("/user/api/signup", {
+      const result = await fetch(`${API}/user/api/signup`, {
         method: "POST",
         credentials: "include",
         body: fd,
@@ -64,7 +68,7 @@ const UserContextProvider = ({ children }) => {
   const Login = async (form_data) => {
     try {
       setLoading(true);
-      const result = await fetch("/user/api/login", {
+      const result = await fetch(`${API}/user/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -95,7 +99,7 @@ const UserContextProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const result = await fetch("/user/api/logout", {
+      const result = await fetch(`${API}/user/api/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -111,7 +115,7 @@ const UserContextProvider = ({ children }) => {
   const managelike = async (blog) => {
     console.log("Managing like for blog:", blog);
     try{
-      const result = await fetch("/user/api/managelike", {
+      const result = await fetch(`${API}/user/api/managelike`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -134,7 +138,7 @@ const UserContextProvider = ({ children }) => {
 
   const fetchUserById = async (userId) => {
     try {
-      const result = await fetch(`/user/api/${encodeURIComponent(userId)}`, {
+      const result = await fetch(`${API}/user/api/${encodeURIComponent(userId)}`, {
         method: "GET",
         credentials: "include",
       });

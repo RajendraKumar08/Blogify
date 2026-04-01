@@ -1,5 +1,6 @@
 import BlogContext from "./BlogContext";
 import { useState, useCallback } from "react";
+import { defineConfig, loadEnv } from 'vite'
 
 const BlogContextProvider = ({ children }) => {
   const [blogs, setBlogs] = useState([]);
@@ -8,10 +9,13 @@ const BlogContextProvider = ({ children }) => {
   const [searchedBlogs, setSearchedBlogs] = useState(false);
   const [loading, setloading] = useState(false);
 
+  const env = loadEnv(mode, process.cwd(), '')
+  const API = env.VITE_BACKEND_URL;
+
   const fetch_blogs = useCallback(async () => {
     setloading(true);
     try {
-      const result = await fetch("/blog/api/all", {
+      const result = await fetch(`${API}/blog/api/all`, {
         method: "GET",
         credentials: "include",
       });
@@ -30,7 +34,7 @@ const BlogContextProvider = ({ children }) => {
 
   const fetch_blog = useCallback(async (id) => {
     try {
-      const result = await fetch(`/blog/api/${id}`, {
+      const result = await fetch(`${API}/blog/api/${id}`, {
         method: "GET",
         credentials: "include",
       });
@@ -59,7 +63,7 @@ const BlogContextProvider = ({ children }) => {
       fd.append("discription", form_data.Discription);
       fd.append("image", form_data.image[0]);
       // console.log("This is form data", fd);
-      const result = await fetch("/blog/api/create", {
+      const result = await fetch(`${API}/blog/api/create`, {
         method: "POST",
         credentials: "include",
         body: fd,
@@ -83,7 +87,7 @@ const BlogContextProvider = ({ children }) => {
   const create_comment = async(form_data) => {
     try {
         console.log("Creating comment with data in context", form_data);
-        const result = await fetch("/comment/api/create", {
+        const result = await fetch(`${API}/comment/api/create`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -103,7 +107,7 @@ const BlogContextProvider = ({ children }) => {
 
   const fetch_comments = async() => {
     try {
-      const result = await fetch("/comment/api/all", {
+      const result = await fetch(`${API}/comment/api/all`, {
         method: "GET",
         credentials: "include",
       });
@@ -119,7 +123,7 @@ const BlogContextProvider = ({ children }) => {
   const searchBlogs = async(query) => {
     setloading(true);
     try{
-      const result = await fetch(`/blog/api/search?q=${encodeURIComponent(query)}`, {
+      const result = await fetch(`${API}/blog/api/search?q=${encodeURIComponent(query)}`, {
         method: "GET",
         credentials: "include",
       });
@@ -139,7 +143,7 @@ const BlogContextProvider = ({ children }) => {
 
   const likeBlog = async (blogId) => {
     try {
-      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/like`, {
+      const result = await fetch(`${API}/blog/api/${encodeURIComponent(blogId)}/like`, {
         method: "POST",
         credentials: "include",
       });
@@ -164,7 +168,7 @@ const BlogContextProvider = ({ children }) => {
 
   const deleteBlog = async (blogId) => {
     try{
-      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/delete`, {
+      const result = await fetch(`${API}/blog/api/${encodeURIComponent(blogId)}/delete`, {
         method: "POST", // backend expects POST for delete
         credentials: "include",
       });
@@ -198,7 +202,7 @@ const BlogContextProvider = ({ children }) => {
         fd.append("image", form_data.image[0]);
       }
       console.log("Updating blog with data", form_data);
-      const result = await fetch(`/blog/api/${blogId}/update`, {
+      const result = await fetch(`${API}/blog/api/${blogId}/update`, {
         method: "PUT",
         credentials: "include",
         body: fd,
