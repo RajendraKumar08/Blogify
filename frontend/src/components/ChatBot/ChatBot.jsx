@@ -21,16 +21,27 @@ const ChatBot = ({
 
   // Check for mobile screen size
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      // On mobile, start closed. On desktop, start open.
-      setOpen(!mobile);
+    const getIsMobile = () => window.innerWidth < 768;
+    
+    // Set initial states once on mount
+    const initialMobile = getIsMobile();
+    setIsMobile(initialMobile);
+    setOpen(!initialMobile);
+
+    const handleResize = () => {
+      const mobile = getIsMobile();
+      setIsMobile(prev => {
+        // Toggle open/closed ONLY if we are crossing the breakpoint (e.g., from Desktop to Mobile)
+        // This prevents the chat from closing when the mobile keyboard changes the viewport height
+        if (prev !== mobile) {
+          setOpen(!mobile);
+        }
+        return mobile;
+      });
     };
     
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
