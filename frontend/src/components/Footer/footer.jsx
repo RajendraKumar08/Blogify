@@ -18,7 +18,7 @@ const Footer = () => {
         {/* Developer Info */}
         <div className="flex flex-col items-center gap-3">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">
-            Created with ❤️ by
+            Created by
           </p>
           <span className="text-lg font-bold text-white hover:text-blue-400 transition-colors duration-300">
             Rajendra Kumar
