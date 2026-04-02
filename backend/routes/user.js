@@ -2,25 +2,16 @@ const { Router } = require('express')
 const User = require('../models/user')
 const { randomBytes } = require("crypto");
 const { createTokenForUser } = require("../service/auth");
-const {validateToken} = require("../service/auth");
+const { validateToken } = require("../service/auth");
 const user = require('../models/user');
 const multer = require("multer");
 const path = require("path");
 const { ObjectId } = require('mongoose').Types;
-
+const cloudinary = require('../service/cloudinary');
 const router = Router()
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.resolve(__dirname, `../public/upload`));
-  },
-  filename: function (req, file, cb) {
-    const filename = `${Date.now()} - ${file.originalname}`
-    cb(null, filename);
-  }
-})
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage })
 
 router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
@@ -29,8 +20,23 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
     // const salt = randomBytes(16).toString("hex");
     // console.log("File received:", req.file);
     let imageUrl = '';
-    if(req.file){
-      imageUrl = `/upload/${req.file.filename}`;
+
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'blogify/users',
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+
+        stream.end(req.file.buffer);
+      });
+
+      imageUrl = uploadResult.secure_url;
     }
     const user = await User.create({ name, email, password, profileImg: imageUrl });
 
@@ -48,17 +54,17 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
 
 
 router.post('/api/login', async (req, res) => {
-    const { email, password } = req.body
+  const { email, password } = req.body
 
-    try {
-        const token = await User.matchPasswordAndGenerateToken(email, password)
-        const payload = validateToken(token);
-        const user = await User.findById(payload._id).select('-password -salt');
-        // console.log(user)
-        return res.cookie("token", token).json({ success: true, user})
-    } catch (error) {
-        return res.status(401).json({ error: "Incorrect Email or Password" })
-    }
+  try {
+    const token = await User.matchPasswordAndGenerateToken(email, password)
+    const payload = validateToken(token);
+    const user = await User.findById(payload._id).select('-password -salt');
+    // console.log(user)
+    return res.cookie("token", token).json({ success: true, user })
+  } catch (error) {
+    return res.status(401).json({ error: "Incorrect Email or Password" })
+  }
 })
 
 router.post('/api/logout', (req, res) => {
@@ -84,7 +90,7 @@ router.get("/api/me", async (req, res) => {
 router.post("/api/managelike", async (req, res) => {
   try {
     const token = req.cookies.token;
-    const blogId = req.body.blogId;  
+    const blogId = req.body.blogId;
 
     console.log("Blog ID received in manage like route:", blogId);
 
@@ -105,7 +111,7 @@ router.post("/api/managelike", async (req, res) => {
 
     const blogObjectId = new ObjectId(blogId);
 
-    if(user.likedBlogs.some(id => id.equals(blogObjectId))){
+    if (user.likedBlogs.some(id => id.equals(blogObjectId))) {
       user.likedBlogs = user.likedBlogs.filter(id => !id.equals(blogObjectId));
     } else {
       user.likedBlogs.push(blogObjectId);
@@ -113,7 +119,7 @@ router.post("/api/managelike", async (req, res) => {
 
     await user.save();
     user.likedBlogs.map(id => console.log("Liked blog id", id));
-    
+
     return res.json({ success: true, user }); // Return the updated user document
   } catch (err) {
     console.log("Error in manage like:", err);
