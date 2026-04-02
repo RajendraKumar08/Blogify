@@ -4,6 +4,7 @@ import { useState } from "react";
 const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [otheruser, setotheruser] = useState(null);
 
   const API = import.meta.env.VITE_BACKEND_URL || '';
@@ -12,6 +13,7 @@ const UserContextProvider = ({ children }) => {
   //  and it will solve the problem of losing the user state on refresh
   const fetchUser = async () => {
     try {
+      setLoading(true);
       const result = await fetch(`${API}/user/api/me`, {
         method: "GET",
         credentials: "include",
@@ -28,6 +30,8 @@ const UserContextProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -136,6 +140,7 @@ const UserContextProvider = ({ children }) => {
 
   const fetchUserById = async (userId) => {
     try {
+      setProfileLoading(true);
       const result = await fetch(`${API}/user/api/${encodeURIComponent(userId)}`, {
         method: "GET",
         credentials: "include",
@@ -148,11 +153,13 @@ const UserContextProvider = ({ children }) => {
     } catch (error) {
       console.log("Error fetching user by ID", error);
       return null;
+    } finally {
+      setProfileLoading(false);
     }
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike, fetchUserById, loading , otheruser, setotheruser}}>
+    <UserContext.Provider value={{ user, setUser, CreateAccount, Login, logout, fetchUser, managelike, fetchUserById, loading , otheruser, setotheruser, profileLoading}}>
       {children}
     </UserContext.Provider>
   );

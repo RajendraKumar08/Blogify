@@ -1,20 +1,37 @@
-import react, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import BlogContext from '../../context/BlogContext';
 import UserContext from '../../context/UserContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
 
 const ProfilePage = () => {
 
-    const { user } = useContext(UserContext);
+    const { user, loading } = useContext(UserContext);
     const { blogs, fetch_blogs } = useContext(BlogContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch_blogs();
         console.log("Blogs fetched in profile page", blogs);
     }, []);
-    console.log("User in profile page", user);
+
+    useEffect(() => {
+        // Only redirect once loading is finished and user is still null
+        if (!loading && !user) {
+            navigate('/Login');
+        }
+    }, [user, loading, navigate]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loading />
+            </div>
+        );
+    }
+
     if (!user) {
-        return <div className="flex items-center justify-center h-screen text-gray-500">Loading...</div>;
+        return null; // Will redirect via useEffect
     }
 
     const userBlogs = blogs.filter(blog => blog.createdBy && blog.createdBy._id && blog.createdBy._id.toString() === user._id);
