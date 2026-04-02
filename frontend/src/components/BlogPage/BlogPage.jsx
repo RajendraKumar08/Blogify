@@ -159,7 +159,7 @@ try {
               <div className="mb-6 sm:mb-8 rounded-lg overflow-hidden shadow-md">
                 <img 
                   className="w-full h-auto object-cover max-h-96 sm:max-h-full" 
-                  src={`http://localhost:3000${blog.imageUrl}`} 
+                  src={`${blog.imageUrl}`} 
                   alt={blog.title} 
                 />
               </div>
@@ -312,7 +312,7 @@ try {
                       <div className="flex items-start gap-3 mb-3">
                         <img
                           className="rounded-full object-cover h-10 w-10 sm:h-12 sm:w-12 shrink-0"
-                          src={`http://localhost:3000${filteredComment.createdBy.profileImg}`}
+                          src={`${filteredComment.createdBy.profileImg}`}
                           alt={filteredComment.createdBy.name}
                         />
                         <div className="flex-1 min-w-0">

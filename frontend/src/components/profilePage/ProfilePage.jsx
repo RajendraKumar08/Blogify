@@ -32,7 +32,7 @@ const ProfilePage = () => {
                     
                     <div className='flex flex-col sm:flex-row items-center gap-6 sm:gap-8'>
                         <img
-                            src={`http://localhost:3000${user.profileImg}`}
+                            src={`${user.profileImg}`}
                             alt={user.name}
                             className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
                         />
@@ -69,7 +69,7 @@ const ProfilePage = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-fit h-fit object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`http://localhost:3000${filteredBlog.imageUrl}`} 
+                                            src={`${filteredBlog.imageUrl}`} 
                                             alt={filteredBlog.title}
                                         />
                                     </div>
@@ -116,7 +116,7 @@ const ProfilePage = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-fit h-fit object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`http://localhost:3000${filteredBlog.imageUrl}`} 
+                                            src={`${filteredBlog.imageUrl}`} 
                                             alt={filteredBlog.title}
                                         />
                                     </div>

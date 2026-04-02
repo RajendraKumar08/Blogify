@@ -156,7 +156,7 @@ function Home() {
 
                       <img
                         className="w-fit h-fit sm:h-56 object-cover rounded"
-                        src={`${API}${blog.imageUrl}`}
+                        src={`${blog.imageUrl}`}
                         alt={blog.title}
                       />
 
