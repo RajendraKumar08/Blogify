@@ -75,7 +75,7 @@ router.get("/api/me", async (req, res) => {
 
     const payload = validateToken(token);
     const user = await User.findById(payload._id).select('-password -salt');
-
+    console.log("User fetched", user);
     return res.json({ success: true, user });
   } catch (err) {
     return res.status(401).json({ success: false, error: "Invalid token" });
