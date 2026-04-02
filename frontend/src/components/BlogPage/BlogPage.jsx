@@ -20,7 +20,7 @@ const BlogPage = () => {
   );
 
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_BACKEND_URL;
 
   const {
     register,
@@ -41,7 +41,7 @@ const BlogPage = () => {
     document.addEventListener("keydown", handleActivity);
     document.addEventListener("scroll", handleActivity);
     document.addEventListener("click", handleActivity);
-
+    
     interval = setInterval(() => {
       const inactiveDuration = Date.now() - lastactive;
       // Increment time spent only if user has been active within the last 5 seconds
