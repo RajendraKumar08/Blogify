@@ -17,8 +17,7 @@ const upload = multer({ storage })
 router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    // const salt = randomBytes(16).toString("hex");
-    // console.log("File received:", req.file);
+
     let imageUrl = '';
 
     if (req.file) {
@@ -37,6 +36,7 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
       });
 
       imageUrl = uploadResult.secure_url;
+      console.log(imageUrl);
     }
     const user = await User.create({ name, email, password, profileImg: imageUrl });
 
@@ -44,7 +44,11 @@ router.post('/api/signup', upload.single('profileImg'), async (req, res) => {
 
     // console.log(user)
 
-    return res.cookie("token", token, { httpOnly: true }).json({ success: true, user });
+    return res.cookie("token", token, { 
+      httpOnly: true,
+      secure: true,   // Required for cross-site cookies
+      sameSite: 'none' // Required for cross-site cookies
+    }).json({ success: true, user });
 
   } catch (error) {
     console.log("Signup Error:", error);
@@ -61,14 +65,22 @@ router.post('/api/login', async (req, res) => {
     const payload = validateToken(token);
     const user = await User.findById(payload._id).select('-password -salt');
     // console.log(user)
-    return res.cookie("token", token).json({ success: true, user })
+    return res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    }).json({ success: true, user })
   } catch (error) {
     return res.status(401).json({ error: "Incorrect Email or Password" })
   }
 })
 
 router.post('/api/logout', (req, res) => {
-  return res.clearCookie("token").json({ success: true });
+  return res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  }).json({ success: true });
 });
 
 router.get("/api/me", async (req, res) => {

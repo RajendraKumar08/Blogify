@@ -6,18 +6,10 @@ const View = require('../models/blogViews')
 const { client } = require("../service/openai");
 // const openai = require("../service/openai")
 
+const cloudinary = require('../service/cloudinary');
 const router = Router()
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.resolve(__dirname, `../public/upload`));
-  },
-  filename: function (req, file, cb) {
-    const filename = `${Date.now()} - ${file.originalname}`
-    cb(null, filename);
-  }
-})
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage })
 
 // Create a new blog post
@@ -39,7 +31,21 @@ router.post('/api/create', upload.single("image"), async (req, res) => {
     let imageUrl = '';
 
     if (req.file) {
-      imageUrl = `/upload/${req.file.filename}`;
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'blogify/blogs',
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+
+        stream.end(req.file.buffer);
+      });
+
+      imageUrl = uploadResult.secure_url;
     }
     // let chunks = chunk_text(content);
     // let embeddings = [];
@@ -259,7 +265,21 @@ router.put('/api/:id/update', upload.single("image"), async (req, res) => {
     let imageUrl = blog.imageUrl; // Keep existing image if no new one
 
     if (req.file) {
-      imageUrl = `/upload/${req.file.filename}`;
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'blogify/blogs',
+            },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+  
+          stream.end(req.file.buffer);
+        });
+  
+        imageUrl = uploadResult.secure_url;
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(
