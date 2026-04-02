@@ -1,7 +1,9 @@
-import react, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import BlogContext from '../../context/BlogContext';
 import UserContext from '../../context/UserContext';
 import { Link, useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
+
 
 const OtherProfile = () => {
 
