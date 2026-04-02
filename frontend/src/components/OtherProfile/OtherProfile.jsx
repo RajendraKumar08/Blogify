@@ -7,7 +7,7 @@ import Loading from '../Loading/Loading';
 
 const OtherProfile = () => {
 
-    const { fetchUserById, otheruser, user, profileLoading } = useContext(UserContext);
+    const { fetchUserById, otheruser, user } = useContext(UserContext);
     const { blogs, fetch_blogs } = useContext(BlogContext);
     const navigate = useNavigate();
 
@@ -24,12 +24,8 @@ const OtherProfile = () => {
         }
     }, [user, navigate, fetchUserById]);
 
-    if (profileLoading || !otheruser) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loading />
-            </div>
-        );
+    if (!otheruser) {
+        return null;
     }
 
     const userblogs = blogs.filter(blog => 
