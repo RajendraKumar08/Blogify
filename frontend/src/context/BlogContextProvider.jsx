@@ -139,7 +139,29 @@ const BlogContextProvider = ({ children }) => {
 
   }
 
-  const likeBlog = async (blogId) => {
+  const likeBlog = async (blogId, userId) => {
+    if (!userId) return;
+
+    // 1. Save snapshot of current state
+    const previousBlog = blog;
+    const previousBlogs = blogs;
+
+    // 2. Perform optimistic update
+    const updateLikes = (likes) => {
+      const isLiked = likes.some((id) => id.toString() === userId.toString());
+      return isLiked 
+        ? likes.filter((id) => id.toString() !== userId.toString()) 
+        : [...likes, userId];
+    };
+
+    if (blog && blog._id === blogId) {
+      setBlog({ ...blog, likes: updateLikes(blog.likes) });
+    }
+    
+    setBlogs((prev) => 
+      prev.map((b) => b._id === blogId ? { ...b, likes: updateLikes(b.likes) } : b)
+    );
+
     try {
       const result = await fetch(`${API}/blog/api/${encodeURIComponent(blogId)}/like`, {
         method: "POST",
@@ -147,20 +169,21 @@ const BlogContextProvider = ({ children }) => {
       });
 
       if (!result.ok) {
-        const text = await result.text();
-        throw new Error(`Like request failed (${result.status}): ${text}`);
+        throw new Error("Like request failed");
       }
 
       const data = await result.json();
-      // console.log("Like response", data);
-
       if (data.success && data.blog) {
+        // Sync with server data just in case
         setBlog(data.blog);
         setBlogs((prev) => prev.map((b) => (b._id === data.blog._id ? data.blog : b)));
       }
     } catch (error) {
       console.error("Error liking blog", error);
-      alert("Unable to like blog. Please try again.");
+      // 3. Revert to snapshot on error
+      setBlog(previousBlog);
+      setBlogs(previousBlogs);
+      alert("Unable to sync like. Please try again.");
     }
   };
 

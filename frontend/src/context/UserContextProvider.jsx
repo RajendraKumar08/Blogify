@@ -115,28 +115,42 @@ const UserContextProvider = ({ children }) => {
   }
 
   const managelike = async (blog) => {
-    console.log("Managing like for blog:", blog);
-    try{
+    if (!user || !blog) return;
+
+    // 1. Save snapshot of current state
+    const previousUser = user;
+
+    // 2. Perform optimistic update
+    const isLiked = user.likedBlogs.some((id) => id.toString() === blog._id.toString());
+    const updatedLikedBlogs = isLiked
+      ? user.likedBlogs.filter((id) => id.toString() !== blog._id.toString())
+      : [...user.likedBlogs, blog._id];
+
+    setUser({ ...user, likedBlogs: updatedLikedBlogs });
+
+    try {
       const result = await fetch(`${API}/user/api/managelike`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({blogId : blog._id}),
+        body: JSON.stringify({ blogId: blog._id }),
       });
-      if(!result.ok){
-        const text = await result.text();
-        throw new Error(`Manage like request failed (${result.status}): ${text}`);
+
+      if (!result.ok) {
+        throw new Error("Manage like request failed");
       }
+
       const data = await result.json();
-      console.log("Manage like response", data);
-      if(data.success){
-        setUser(data.user); // Update user in context with new likedBlogs
+      if (data.success) {
+        // Sync with server data
+        setUser(data.user); 
       }
+    } catch (error) {
+      console.log("Manage like err", error);
+      // 3. Revert on error
+      setUser(previousUser);
     }
-    catch(error){
-      console.log("Manage like err" , error)
-    }
-  }
+  };
 
   const fetchUserById = async (userId) => {
     try {

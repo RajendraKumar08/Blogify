@@ -41,7 +41,7 @@ const BlogPage = () => {
     document.addEventListener("keydown", handleActivity);
     document.addEventListener("scroll", handleActivity);
     document.addEventListener("click", handleActivity);
-    
+
     interval = setInterval(() => {
       const inactiveDuration = Date.now() - lastactive;
       // Increment time spent only if user has been active within the last 5 seconds
@@ -95,18 +95,18 @@ const BlogPage = () => {
   }
 
 
-  const handlelike = () => {
+  const handlelike = async () => {
     if (!user) {
       alert("Please login to like the blog");
       return;
     }
-    else {
-      likeBlog(blog._id);
-      managelike(blog);
-    }
-    fetch_blog(id);
-    // fetchUser();
-
+    
+    // We don't await here because we want optimistic updates to trigger immediately in both contexts
+    likeBlog(blog._id, user._id);
+    managelike(blog);
+    
+    // No need to fetch_blog(id) here anymore because the context 
+    // updates the 'blog' state automatically (optimistically and then with sync)
   }
 
   const handleDelete = async () => {
