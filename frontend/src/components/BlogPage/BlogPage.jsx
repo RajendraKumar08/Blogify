@@ -127,7 +127,7 @@ const BlogPage = () => {
     if (!id) return;
 
     const timer = setTimeout(() => {
-      fetch(`/blog/api/${encodeURIComponent(id)}/view`, {
+      fetch(`${API}/blog/api/${encodeURIComponent(id)}/view`, {
         method: "POST",
         credentials: "include",
       });
