@@ -201,7 +201,8 @@ router.post('/api/:id/like', async (req, res) => {
     }
 
     await blog.save();
-    return res.json({ success: true, blog });
+    const populatedBlog = await Blog.findById(blogId).populate('createdBy');
+    return res.json({ success: true, blog: populatedBlog });
   } catch (error) {
     console.log("Error liking blog", error);
     return res.status(500).json({ success: false, error: error.message });
