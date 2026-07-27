@@ -1,4 +1,4 @@
-import react, { useContext } from 'react';
+import react, { useContext, useState } from 'react';
 import { useForm } from "react-hook-form"
 import UserContext from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,8 +6,9 @@ import Loading from '../Loading/Loading';
 
 
 function Login() {
-    const { Login, loading } = useContext(UserContext);
+    const { Login: loginUser, loading } = useContext(UserContext);
     const navigate = useNavigate();
+    const [loginError, setLoginError] = useState("");
 
     const {
         register,
@@ -17,10 +18,13 @@ function Login() {
     } = useForm()
 
     const onSubmit = async (data) => {
-        // e.preventdefault();
-        await Login(data);
-        navigate("/");
-
+        setLoginError("");
+        const res = await loginUser(data);
+        if (res && res.success) {
+            navigate("/");
+        } else {
+            setLoginError(res?.error || "Incorrect Email or Password");
+        }
     }
 
     return (
@@ -28,7 +32,13 @@ function Login() {
             <div className='w-full max-w-md'>
                 <div className='bg-white rounded-lg shadow-lg p-8'>
                     <h2 className='text-3xl font-bold text-gray-900 mb-6 text-center'>Welcome Back</h2>
-                    <p className='text-center text-gray-600 mb-8'>Sign in to your account to continue</p>
+                    <p className='text-center text-gray-600 mb-6'>Sign in to your account to continue</p>
+
+                    {loginError && (
+                        <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium mb-6 text-center animate-pulse'>
+                            {loginError}
+                        </div>
+                    )}
 
                     <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
 

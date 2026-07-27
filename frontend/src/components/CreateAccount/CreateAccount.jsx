@@ -9,6 +9,7 @@ function CreateAccount() {
   const navigate = useNavigate();
   const { CreateAccount: registerUser, loading } = useContext(UserContext);
   const [imagePreview, setImagePreview] = useState(null);
+  const [submitError, setSubmitError] = useState("");
 
   const {
     register,
@@ -29,8 +30,13 @@ function CreateAccount() {
   }, [imageFile]);
 
   const onSubmit = async (data) => {
-    await registerUser(data);
-    navigate("/");
+    setSubmitError("");
+    const res = await registerUser(data);
+    if (res && res.success) {
+      navigate("/");
+    } else {
+      setSubmitError(res?.error || "Signup failed. Please try again.");
+    }
   };
 
   return (
@@ -38,7 +44,13 @@ function CreateAccount() {
       <div className='w-full max-w-md'>
         <div className='bg-white rounded-lg shadow-lg p-8'>
           <h2 className='text-3xl font-bold text-gray-900 mb-2 text-center'>Create Account</h2>
-          <p className='text-center text-gray-600 mb-8'>Join our community and start blogging</p>
+          <p className='text-center text-gray-600 mb-6'>Join our community and start blogging</p>
+
+          {submitError && (
+            <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium mb-6 text-center animate-pulse'>
+              {submitError}
+            </div>
+          )}
 
           <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
             

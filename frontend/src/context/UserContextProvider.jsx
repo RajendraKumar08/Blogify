@@ -56,12 +56,15 @@ const UserContextProvider = ({ children }) => {
 
       if (data.success) {
         setUser(data.user);
+        return { success: true };
       } else {
         setUser(null);
+        return { success: false, error: data.error || "Signup failed" };
       }
     } catch (error) {
       console.log(error);
       setUser(null);
+      return { success: false, error: error.message || "Network error occurred" };
     } finally {
       setLoading(false);
     }
@@ -79,25 +82,27 @@ const UserContextProvider = ({ children }) => {
 
       if (result.status === 401) {
         setUser(null);
-        return;
+        return { success: false, error: "Incorrect Email or Password" };
       }
-      // console.log(result); 
+      
       const data = await result.json();
-      // console.log(data);
+      console.log(data);
 
       if (data.success) {
         setUser(data.user);
+        return { success: true };
       } else {
         setUser(null);
+        return { success: false, error: data.error || "Login failed" };
       }
-
-
     } catch (error) {
       console.log(error);
+      setUser(null);
+      return { success: false, error: error.message || "Network error occurred" };
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const logout = async () => {
     try {
