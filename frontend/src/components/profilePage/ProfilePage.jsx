@@ -1,20 +1,37 @@
-import react, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import BlogContext from '../../context/BlogContext';
 import UserContext from '../../context/UserContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
 
 const ProfilePage = () => {
 
-    const { user } = useContext(UserContext);
+    const { user, loading } = useContext(UserContext);
     const { blogs, fetch_blogs } = useContext(BlogContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch_blogs();
         console.log("Blogs fetched in profile page", blogs);
     }, []);
-    console.log("User in profile page", user);
+
+    useEffect(() => {
+        // Only redirect once loading is finished and user is still null
+        if (!loading && !user) {
+            navigate('/Login');
+        }
+    }, [user, loading, navigate]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loading />
+            </div>
+        );
+    }
+
     if (!user) {
-        return <div className="flex items-center justify-center h-screen text-gray-500">Loading...</div>;
+        return null; // Will redirect via useEffect
     }
 
     const userBlogs = blogs.filter(blog => blog.createdBy && blog.createdBy._id && blog.createdBy._id.toString() === user._id);
@@ -32,7 +49,7 @@ const ProfilePage = () => {
                     
                     <div className='flex flex-col sm:flex-row items-center gap-6 sm:gap-8'>
                         <img
-                            src={`http://localhost:3000${user.profileImg}`}
+                            src={`${user.profileImg}`}
                             alt={user.name}
                             className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
                         />
@@ -69,7 +86,7 @@ const ProfilePage = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-fit h-fit object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`http://localhost:3000${filteredBlog.imageUrl}`} 
+                                            src={`${filteredBlog.imageUrl}`} 
                                             alt={filteredBlog.title}
                                         />
                                     </div>
@@ -116,7 +133,7 @@ const ProfilePage = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-fit h-fit object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`http://localhost:3000${filteredBlog.imageUrl}`} 
+                                            src={`${filteredBlog.imageUrl}`} 
                                             alt={filteredBlog.title}
                                         />
                                     </div>

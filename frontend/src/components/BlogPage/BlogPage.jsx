@@ -20,6 +20,7 @@ const BlogPage = () => {
   );
 
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_BACKEND_URL;
 
   const {
     register,
@@ -61,7 +62,7 @@ const BlogPage = () => {
       document.removeEventListener("click", handleActivity);
 
       if (timespentRef.current > 0) {
-        fetch(`/blog/api/${encodeURIComponent(id)}/read-time`, {
+        fetch(`${API}/blog/api/${encodeURIComponent(id)}/read-time`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,7 +73,7 @@ const BlogPage = () => {
       }
     };
   }, [id]);
-  
+
 
 
   useEffect(() => {
@@ -81,9 +82,9 @@ const BlogPage = () => {
       fetch_blog(id);
       fetch_comments();
     }
-    
+
   }, [id, fetch_blog, comments.length]);
-  
+
 
   const onSubmit = async (data) => {
     console.log("Comment data", data)
@@ -92,20 +93,20 @@ const BlogPage = () => {
     await create_comment(data);
     reset();
   }
-  
 
-  const handlelike = () => {
-    if(!user){
+
+  const handlelike = async () => {
+    if (!user) {
       alert("Please login to like the blog");
       return;
     }
-    else{
-      likeBlog(blog._id);
-      managelike(blog);
-    }
-    fetch_blog(id);
-    // fetchUser();
-
+    
+    // We don't await here because we want optimistic updates to trigger immediately in both contexts
+    likeBlog(blog._id, user._id);
+    managelike(blog);
+    
+    // No need to fetch_blog(id) here anymore because the context 
+    // updates the 'blog' state automatically (optimistically and then with sync)
   }
 
   const handleDelete = async () => {
@@ -122,31 +123,31 @@ const BlogPage = () => {
     navigate(`/edit/${blog._id}`);
   }
 
-    useEffect(() => {
-      if (!id) return;
-      
-      const timer = setTimeout(() => {
-        fetch(`/blog/api/${encodeURIComponent(id)}/view`, {
-          method: "POST",
-          credentials: "include",
-        });
-        // console.log("View count updated", result);
-      }, 4000)
-      console.log("Result in view api in frontend")
+  useEffect(() => {
+    if (!id) return;
 
-      return () => clearTimeout(timer);
-    }, [id]);
+    const timer = setTimeout(() => {
+      fetch(`${API}/blog/api/${encodeURIComponent(id)}/view`, {
+        method: "POST",
+        credentials: "include",
+      });
+      // console.log("View count updated", result);
+    }, 4000)
+    console.log("Result in view api in frontend")
+
+    return () => clearTimeout(timer);
+  }, [id]);
 
 
   let parsedContent = null;
 
-try {
-  parsedContent = typeof blog.content === "string"
-    ? JSON.parse(blog.content)
-    : blog.content;
-} catch (error) {
-  console.error("Content parse error", error);
-}
+  try {
+    parsedContent = typeof blog.content === "string"
+      ? JSON.parse(blog.content)
+      : blog.content;
+  } catch (error) {
+    console.error("Content parse error", error);
+  }
 
   return (
     <>
@@ -157,14 +158,14 @@ try {
             {/* Blog Image */}
             {blog.imageUrl && (
               <div className="mb-6 sm:mb-8 rounded-lg overflow-hidden shadow-md">
-                <img 
-                  className="w-full h-auto object-cover max-h-96 sm:max-h-full" 
-                  src={`http://localhost:3000${blog.imageUrl}`} 
-                  alt={blog.title} 
+                <img
+                  className="w-full h-auto object-cover max-h-96 sm:max-h-full"
+                  src={`${blog.imageUrl}`}
+                  alt={blog.title}
                 />
               </div>
             )}
-            
+
             {/* Blog Title */}
             <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center mb-6 text-gray-900">
               {blog.title}
@@ -174,18 +175,17 @@ try {
             <div className="bg-white rounded-lg shadow p-4 sm:p-5 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-gray-700">
                 <p className="text-sm text-gray-600">Created By</p>
-                
+
                 <Link to={user && String(user._id) === String(blog.createdBy._id) ? '/ProfilePage' : `/user/${blog.createdBy._id}`} className="font-semibold text-gray-900">{blog.createdBy.name}</Link>
               </div>
-              
+
               {/* Like Button */}
-              <button 
+              <button
                 onClick={handlelike}
-                className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-                  isBlogLikedByUser
+                className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${isBlogLikedByUser
                     ? 'bg-red-500 text-white hover:bg-red-600 shadow-md'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 <span>❤️</span>
                 <span>{blog.likes.length}</span>
@@ -198,13 +198,13 @@ try {
             {/* Edit/Delete Buttons - Only show for owner */}
             {blog.createdBy._id === user?._id && (
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <button 
+                <button
                   onClick={handleEdit}
                   className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-all duration-200 shadow-md"
                 >
                   ✏️ Edit Blog
                 </button>
-                <button 
+                <button
                   onClick={handleDelete}
                   className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 shadow-md"
                 >
@@ -312,7 +312,7 @@ try {
                       <div className="flex items-start gap-3 mb-3">
                         <img
                           className="rounded-full object-cover h-10 w-10 sm:h-12 sm:w-12 shrink-0"
-                          src={`http://localhost:3000${filteredComment.createdBy.profileImg}`}
+                          src={`${filteredComment.createdBy.profileImg}`}
                           alt={filteredComment.createdBy.name}
                         />
                         <div className="flex-1 min-w-0">

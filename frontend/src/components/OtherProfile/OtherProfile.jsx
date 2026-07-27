@@ -1,7 +1,9 @@
-import react, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import BlogContext from '../../context/BlogContext';
 import UserContext from '../../context/UserContext';
 import { Link, useNavigate } from 'react-router-dom';
+import Loading from '../Loading/Loading';
+
 
 const OtherProfile = () => {
 
@@ -16,14 +18,14 @@ const OtherProfile = () => {
     useEffect(() => {
         const userid = window.location.pathname.split("/user/")[1];
         if (user && String(user._id) === String(userid)) {
-            navigate('/profile');
+            navigate('/profilepage');
         } else {
             fetchUserById(userid);
         }
     }, [user, navigate, fetchUserById]);
 
     if (!otheruser) {
-        return <div className="flex items-center justify-center h-screen text-gray-500">Loading...</div>;
+        return null;
     }
 
     const userblogs = blogs.filter(blog => 
@@ -44,7 +46,7 @@ const OtherProfile = () => {
                     <div className='flex flex-col sm:flex-row items-center gap-6 sm:gap-8'>
                         
                         <img
-                            src={`http://localhost:3000${otheruser.profileImg}`}
+                            src={`${otheruser.profileImg}`}
                             alt={otheruser.name}
                             className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
                         />
@@ -87,7 +89,7 @@ const OtherProfile = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`http://localhost:3000${blog.imageUrl}`} 
+                                            src={`${blog.imageUrl}`} 
                                             alt={blog.title}
                                         />
                                     </div>

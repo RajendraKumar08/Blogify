@@ -16,6 +16,19 @@ const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
 const rateLimit = require("express-rate-limit");
 
+// add cors policy for frontend
+const whitelist = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 // Strict rate limiter for authentication routes - 5 requests per 15 minutes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -51,6 +64,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/chat', chatRoute);
+app.use("/user/api/signup", authLimiter);
+app.use("/user/api/login", authLimiter);
 app.use("/user", userRoute);
 app.use("/blog", blogRoute);
 app.use("/comment", commentRoute);

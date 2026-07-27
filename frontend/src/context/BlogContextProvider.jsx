@@ -8,10 +8,12 @@ const BlogContextProvider = ({ children }) => {
   const [searchedBlogs, setSearchedBlogs] = useState(false);
   const [loading, setloading] = useState(false);
 
+  const API = import.meta.env.VITE_BACKEND_URL || '';
+
   const fetch_blogs = useCallback(async () => {
     setloading(true);
     try {
-      const result = await fetch("/blog/api/all", {
+      const result = await fetch(`${API}/blog/api/all`, {
         method: "GET",
         credentials: "include",
       });
@@ -30,7 +32,7 @@ const BlogContextProvider = ({ children }) => {
 
   const fetch_blog = useCallback(async (id) => {
     try {
-      const result = await fetch(`/blog/api/${id}`, {
+      const result = await fetch(`${API}/blog/api/${id}`, {
         method: "GET",
         credentials: "include",
       });
@@ -59,7 +61,7 @@ const BlogContextProvider = ({ children }) => {
       fd.append("discription", form_data.Discription);
       fd.append("image", form_data.image[0]);
       // console.log("This is form data", fd);
-      const result = await fetch("/blog/api/create", {
+      const result = await fetch(`${API}/blog/api/create`, {
         method: "POST",
         credentials: "include",
         body: fd,
@@ -83,7 +85,7 @@ const BlogContextProvider = ({ children }) => {
   const create_comment = async(form_data) => {
     try {
         console.log("Creating comment with data in context", form_data);
-        const result = await fetch("/comment/api/create", {
+        const result = await fetch(`${API}/comment/api/create`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -103,7 +105,7 @@ const BlogContextProvider = ({ children }) => {
 
   const fetch_comments = async() => {
     try {
-      const result = await fetch("/comment/api/all", {
+      const result = await fetch(`${API}/comment/api/all`, {
         method: "GET",
         credentials: "include",
       });
@@ -119,7 +121,7 @@ const BlogContextProvider = ({ children }) => {
   const searchBlogs = async(query) => {
     setloading(true);
     try{
-      const result = await fetch(`/blog/api/search?q=${encodeURIComponent(query)}`, {
+      const result = await fetch(`${API}/blog/api/search?q=${encodeURIComponent(query)}`, {
         method: "GET",
         credentials: "include",
       });
@@ -137,34 +139,57 @@ const BlogContextProvider = ({ children }) => {
 
   }
 
-  const likeBlog = async (blogId) => {
+  const likeBlog = async (blogId, userId) => {
+    if (!userId) return;
+
+    // 1. Save snapshot of current state
+    const previousBlog = blog;
+    const previousBlogs = blogs;
+
+    // 2. Perform optimistic update
+    const updateLikes = (likes) => {
+      const isLiked = likes.some((id) => id.toString() === userId.toString());
+      return isLiked 
+        ? likes.filter((id) => id.toString() !== userId.toString()) 
+        : [...likes, userId];
+    };
+
+    if (blog && blog._id === blogId) {
+      setBlog({ ...blog, likes: updateLikes(blog.likes) });
+    }
+    
+    setBlogs((prev) => 
+      prev.map((b) => b._id === blogId ? { ...b, likes: updateLikes(b.likes) } : b)
+    );
+
     try {
-      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/like`, {
+      const result = await fetch(`${API}/blog/api/${encodeURIComponent(blogId)}/like`, {
         method: "POST",
         credentials: "include",
       });
 
       if (!result.ok) {
-        const text = await result.text();
-        throw new Error(`Like request failed (${result.status}): ${text}`);
+        throw new Error("Like request failed");
       }
 
       const data = await result.json();
-      // console.log("Like response", data);
-
       if (data.success && data.blog) {
+        // Sync with server data just in case
         setBlog(data.blog);
         setBlogs((prev) => prev.map((b) => (b._id === data.blog._id ? data.blog : b)));
       }
     } catch (error) {
       console.error("Error liking blog", error);
-      alert("Unable to like blog. Please try again.");
+      // 3. Revert to snapshot on error
+      setBlog(previousBlog);
+      setBlogs(previousBlogs);
+      alert("Unable to sync like. Please try again.");
     }
   };
 
   const deleteBlog = async (blogId) => {
     try{
-      const result = await fetch(`/blog/api/${encodeURIComponent(blogId)}/delete`, {
+      const result = await fetch(`${API}/blog/api/${encodeURIComponent(blogId)}/delete`, {
         method: "POST", // backend expects POST for delete
         credentials: "include",
       });
@@ -198,7 +223,7 @@ const BlogContextProvider = ({ children }) => {
         fd.append("image", form_data.image[0]);
       }
       console.log("Updating blog with data", form_data);
-      const result = await fetch(`/blog/api/${blogId}/update`, {
+      const result = await fetch(`${API}/blog/api/${blogId}/update`, {
         method: "PUT",
         credentials: "include",
         body: fd,
