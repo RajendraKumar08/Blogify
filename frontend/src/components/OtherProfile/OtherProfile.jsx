@@ -3,6 +3,7 @@ import BlogContext from '../../context/BlogContext';
 import UserContext from '../../context/UserContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Loading from '../Loading/Loading';
+import { getImageUrl } from '../../utils/image';
 
 
 const OtherProfile = () => {
@@ -46,7 +47,7 @@ const OtherProfile = () => {
                     <div className='flex flex-col sm:flex-row items-center gap-6 sm:gap-8'>
                         
                         <img
-                            src={`${otheruser.profileImg}`}
+                            src={getImageUrl(otheruser.profileImg)}
                             alt={otheruser.name}
                             className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
                         />
@@ -89,7 +90,7 @@ const OtherProfile = () => {
                                     <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-200">
                                         <img 
                                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
-                                            src={`${blog.imageUrl}`} 
+                                            src={getImageUrl(blog.imageUrl)} 
                                             alt={blog.title}
                                         />
                                     </div>

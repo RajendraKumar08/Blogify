@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext, useRef } from "react";
+import { getImageUrl } from "../../utils/image";
 import BlogContext from "../../context/BlogContext";
 import userContext from "../../context/UserContext";
 import { useForm } from "react-hook-form";
@@ -160,7 +161,7 @@ const BlogPage = () => {
               <div className="mb-6 sm:mb-8 rounded-lg overflow-hidden shadow-md">
                 <img
                   className="w-full h-auto object-cover max-h-96 sm:max-h-full"
-                  src={`${blog.imageUrl}`}
+                  src={getImageUrl(blog.imageUrl)}
                   alt={blog.title}
                 />
               </div>
@@ -236,7 +237,7 @@ const BlogPage = () => {
                   return (
                     <img
                       key={index}
-                      src={block.data.file?.url || block.data.url}
+                      src={getImageUrl(block.data.file?.url || block.data.url)}
                       alt=""
                       className="my-6 rounded-lg shadow-md w-full h-auto object-cover"
                     />
@@ -312,7 +313,7 @@ const BlogPage = () => {
                       <div className="flex items-start gap-3 mb-3">
                         <img
                           className="rounded-full object-cover h-10 w-10 sm:h-12 sm:w-12 shrink-0"
-                          src={`${filteredComment.createdBy.profileImg}`}
+                          src={getImageUrl(filteredComment.createdBy.profileImg)}
                           alt={filteredComment.createdBy.name}
                         />
                         <div className="flex-1 min-w-0">

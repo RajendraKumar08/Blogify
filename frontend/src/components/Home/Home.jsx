@@ -3,6 +3,7 @@ import BlogContext from "../../context/BlogContext";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form"
 import Loading from "../Loading/Loading";
+import { getImageUrl } from "../../utils/image";
 
 import { useEffect } from "react";
 
@@ -156,7 +157,7 @@ function Home() {
 
                       <img
                         className="w-fit h-fit sm:h-56 object-cover rounded"
-                        src={`${blog.imageUrl}`}
+                        src={getImageUrl(blog.imageUrl)}
                         alt={blog.title}
                       />
 

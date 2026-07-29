@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BlogContext from "../../../src/context/BlogContext";
 import BlogEditor from '../BlogEditor/BlogEditor';
+import { getImageUrl } from '../../utils/image';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -99,7 +100,7 @@ const EditBlog = () => {
         <div>
           <label className="font-medium">Current Cover Image</label>
           <img
-            src={`http://localhost:3000${blog.imageUrl}`}
+            src={getImageUrl(blog.imageUrl)}
             alt="cover"
             className="mt-2 w-full max-h-52 object-cover rounded-lg border"
           />

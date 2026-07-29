@@ -17,7 +17,9 @@ const MONGO_URI = process.env.MONGODB_URI;
 const rateLimit = require("express-rate-limit");
 
 // add cors policy for frontend
-const whitelist = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [];
+const whitelist = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.replace(/;+$/, '').split(',').map(url => url.trim())
+  : [];
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || whitelist.indexOf(origin) !== -1) {
